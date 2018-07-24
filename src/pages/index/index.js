@@ -21,7 +21,7 @@ import './index.scss'
 }))
 class Index extends Component {
   config = {
-    navigationBarTitleText: '首页'
+    navigationBarTitleText: '平安到家'
   }
 
   componentWillReceiveProps (nextProps) {
