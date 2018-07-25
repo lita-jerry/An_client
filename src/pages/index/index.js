@@ -36,7 +36,7 @@ class Index extends Component {
 
   render () {
     return (
-      <View className='index' style="flex:1;">
+      <View className='index'>
         {/* <Button className='add_btn' onClick={this.props.add}>+</Button>
         <Button className='dec_btn' onClick={this.props.dec}>-</Button>
         <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
@@ -48,8 +48,8 @@ class Index extends Component {
         <Input type='text' placeholder='所搭乘的交通工具' focus/>
         <Text>定位频率(秒):</Text>
         <Slider step="5" value="30" showValue min="5" max="120"/>
-        <Button className='我' onClick={} style="">-</Button>
-        <Button className='发起行程' onClick={} style="">-</Button>
+        <Button className='' style="">我</Button>
+        <Button className='' style="">发起行程</Button>
       </View>
     )
   }
