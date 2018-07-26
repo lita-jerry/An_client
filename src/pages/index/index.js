@@ -37,6 +37,16 @@ class Index extends Component {
   render () {
     return (
       <View className='index'>
+
+        <map style='left: 0; top: 0; width: 100vw; height: 100vh;'></map>
+
+        <div className='map_+_-'
+             style='position:fixed; height: 66px; width: 33px; top: 50vh; right: 10px; z-index:99; background-color: #ffffff; border-width: 0.1px; border-style: solid; border-color: #e0e0e0;'>
+          <div style='flex: 1;'><Text style='width: 33px; background-color: #777777; justify-content: center; align-items: center;'>+</Text></div>
+          <div style='flex: 1;'><View>-</View></div>
+        </div>
+        
+
         {/* <Button className='add_btn' onClick={this.props.add}>+</Button>
         <Button className='dec_btn' onClick={this.props.dec}>-</Button>
         <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
@@ -47,6 +57,8 @@ class Index extends Component {
           <View style='height:150px;background-color:rgb(39,130,215);'>B</View>
           <View style='height:150px;background-color:rgb(241,241,241);color: #333;'>C</View> */}
 
+        
+        {/*
         <ScrollView className='scrollview'
             scrollY
             scrollWithAnimation
@@ -57,7 +69,7 @@ class Index extends Component {
 
           <div style='display:flex; flex-direction: row; height: 44px; align-items: center;'>
             <Text style='width: 33vw; margin-left: 8px;'>目的地:</Text>
-            <Input style='flex: 1; margin-right: 8px;' type='text' placeholder='将要去的目的地' />
+            <Input style='flex: 1; margin-right: 8px; border-style: solid; border-width: 0.5px; border-radius: 8px; border-color: rgba(9, 153, 255, 0.25);' type='text' placeholder='将要去的目的地' />
           </div>
           
           <div style='display:flex; flex-direction: row; height: 44px; align-items: center;'>
@@ -73,11 +85,15 @@ class Index extends Component {
           <view style='height: 88px;'></view>
         </ScrollView>
 
-        {/* <Button className='' style="">我</Button> */}
+        <Button className='' style="">我</Button>
         
         <div style='position:fixed; height: 66px; width: 100vw; bottom: 0; z-index:99; background-color:yellow;'>
           <Button className='' style='height: 66px; width: 100vw;' size='default' plain='true'>发起行程</Button>
         </div>
+        */}
+
+        
+
       </View>
     )
   }
