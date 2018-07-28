@@ -24,34 +24,66 @@ class Index extends Component {
     navigationBarTitleText: '平安到家'
   }
 
+  state = {
+    mapScale : '14'
+  }
+
   componentWillReceiveProps (nextProps) {
     console.log(this.props, nextProps)
   }
 
   componentWillUnmount () { }
 
-  componentDidShow () { }
+  componentDidShow () { 
+    this.mapCtx = wx.createMapContext('myMap')
+    setTimeout(() => {
+      this.mapCtx.moveToLocation()
+    }, 2000)
+  }
+
+  tick() {
+    this.setState({mapScale:'17'})
+  }
+
 
   componentDidHide () { }
 
   render () {
     return (
       <View className='index'>
-
-        <map style='left:0; top:0; width:100vw; height:100vh;'>
+        {/* <map id="map" longitude="113.324520" latitude="23.099994" 
+        scale="14" 
+        controls="{{controls}}" 
+        bindcontroltap="controltap" 
+        markers="{{markers}}" 
+        bindmarkertap="markertap" 
+        polyline="{{polyline}}" 
+        bindregionchange="regionchange" 
+        show-location 
+        style="width: 100%; height: 300px;"></map> */}
+        <map id="myMap"
+             style='left:0; top:0; width:100vw; height:100vh;'
+             scale={this.state.mapScale}
+             show-location>
           <cover-view className='map_+_-'
-              style='position:fixed; top:50vh; right:10px; z-index:99;'>
-            <Button style='width:33px; height:33px; padding:0; margin:0; line-height:166%; text-align:center;'>+</Button>
-            <Button style='width:33px; height:33px; padding:0; margin:0; line-height:166%; text-align:center;'>-</Button>
+              style='position:fixed; top:45vh; right:10px; z-index:99; width:44px; height:99px;'>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:49%; margin:auto;'
+                    onClick={tick}>+</Button>
+            <Button style='position:absolute; left:0; top:49%; right:0; bottom:0; margin:auto;'>-</Button>
           </cover-view>
           
           <cover-view className='tool_bar'
-              style='position:fixed; left:0; right:0; margin:auto; bottom:20px; z-index:99; width:70vw; height:60px;'>
-            <View style='width:100%; height:100%; border:1px solid #ddd; border-radius:50px; background-color:white;'>
-              <View style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></View>
-              <View style='position:absolute; left:55%; top:0; right:0; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></View>
-            </View>
-            <View style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:70px; height:70px; border:1px solid #aaa; border-radius:35px; z-index:99; background-color:green;'></View>
+              style='position:fixed; left:0; right:0; margin:auto; bottom:20px; z-index:999; width:80vw; height:70px;'>
+            <cover-view style='width:100%; height:60px; margin:3px 0; border:1px solid #ddd; border-radius:50px; background-color:white;'>
+              <cover-view style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></cover-view>
+              <cover-view style='position:absolute; left:55%; top:0; right:0; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></cover-view>
+            </cover-view>
+            <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66px; height:66px; border:1px solid #aaa; border-radius:33px; z-index:99; background-color:green;'></cover-view>
+          </cover-view>
+
+          <cover-view className='map_+_-'
+              style='position:fixed; bottom:110px; left:10px; z-index:99; width:44px; height:44px;'>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto;'>⊙</Button>
           </cover-view>
         </map>
 
