@@ -38,14 +38,24 @@ class Index extends Component {
     return (
       <View className='index'>
 
-        <map style='left: 0; top: 0; width: 100vw; height: 100vh;'></map>
+        <map style='left:0; top:0; width:100vw; height:100vh;'>
+          <cover-view className='map_+_-'
+              style='position:fixed; top:50vh; right:10px; z-index:99;'>
+            <Button style='width:33px; height:33px; padding:0; margin:0; line-height:166%; text-align:center;'>+</Button>
+            <Button style='width:33px; height:33px; padding:0; margin:0; line-height:166%; text-align:center;'>-</Button>
+          </cover-view>
+          
+          <cover-view className='tool_bar'
+              style='position:fixed; left:0; right:0; margin:auto; bottom:20px; z-index:99; width:70vw; height:60px;'>
+            <View style='width:100%; height:100%; border:1px solid #ddd; border-radius:50px; background-color:white;'>
+              <View style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></View>
+              <View style='position:absolute; left:55%; top:0; right:0; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></View>
+            </View>
+            <View style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:70px; height:70px; border:1px solid #aaa; border-radius:35px; z-index:99; background-color:green;'></View>
+          </cover-view>
+        </map>
 
-        <div className='map_+_-'
-             style='position:fixed; height: 66px; width: 33px; top: 50vh; right: 10px; z-index:99; background-color: #ffffff; border-width: 0.1px; border-style: solid; border-color: #e0e0e0;'>
-          <div style='flex: 1;'><Text style='width: 33px; background-color: #777777; justify-content: center; align-items: center;'>+</Text></div>
-          <div style='flex: 1;'><View>-</View></div>
-        </div>
-        
+       
 
         {/* <Button className='add_btn' onClick={this.props.add}>+</Button>
         <Button className='dec_btn' onClick={this.props.dec}>-</Button>
