@@ -8,6 +8,7 @@ import './index.scss'
 
 import follow_icon from './images/follow.png'
 import my_icon from './images/my.png'
+import trip_icon from './images/trip.png'
 
 @connect(({ counter }) => ({
   counter
@@ -28,7 +29,9 @@ class Index extends Component {
   }
 
   state = {
-    mapScale : '14'
+    mapScale : '14',
+    longitude: "113.324520",
+    latitude: "23.099994"
   }
 
   componentWillReceiveProps (nextProps) {
@@ -39,15 +42,13 @@ class Index extends Component {
 
   componentDidShow () { 
     this.mapCtx = wx.createMapContext('myMap')
-    setTimeout(() => {
-      this.mapCtx.moveToLocation()
-    }, 2000)
+    this.showLocation()
   }
 
   mapScale_enlargement() {
     var scale = Number(this.state.mapScale)
     console.log(scale)
-    if (scale < 18) {
+    if (scale < 20) {
       this.setState({mapScale:(scale + 1) + ""})
     }
   }
@@ -60,7 +61,21 @@ class Index extends Component {
   }
   // 地图上显示当前位置
   showLocation() {
-    this.mapCtx.moveToLocation()
+    var _self = this
+    wx.getLocation({
+      type: 'gcj02', //返回可以用于wx.openLocation的经纬度
+      success: function(res) {
+        var _latitude = res.latitude
+        var _longitude = res.longitude
+        console.log(_latitude, _longitude)
+        _self.setState({
+          longitude:_longitude + "", 
+          latitude:_latitude + ""
+        })
+        _self.mapCtx.moveToLocation()
+      }
+    })
+    // this.mapCtx.moveToLocation()
     // this.setState({mapScale:"18"})
   }
 
@@ -73,21 +88,21 @@ class Index extends Component {
 
         <map id="myMap"
              style='left:0; top:0; width:100vw; height:100vh;'
-             longitude="113.324520" latitude="23.099994"
+             longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale}
              show-location>
 
           <cover-view className='map_+_-'
               style='position:fixed; top:45vh; right:10px; z-index:99; width:44px; height:99px;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:49%; margin:auto;'
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:49%; width:99%; height:99%; margin:auto;'
                     onClick={mapScale_enlargement}>+</Button>
-            <Button style='position:absolute; left:0; top:49%; right:0; bottom:0; margin:auto;'
+            <Button style='position:absolute; left:0; top:49%; right:0; bottom:0; width:99%; height:99%; margin:auto;'
                     onClick={mapScale_reduction}>-</Button>
           </cover-view>
           
           <cover-view className='tool_bar'
-              style='position:fixed; left:0; right:0; margin:auto; bottom:20px; z-index:999; width:80vw; height:70px;'>
-            <cover-view style='width:100%; height:60px; margin:3px 0; border:1px solid #ddd; border-radius:50px; background-color:white;'>
+              style='position:fixed; left:0; right:0; margin:auto; bottom:25px; z-index:999; width:80vw; height:70px;'>
+            <cover-view style='width:98%; height:60px; margin:3px 0; border:1px solid #ddd; border-radius:50px; background-color:white;'>
 
               <cover-view style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:60px; height:60px; z-index:99;'>
                 <cover-image src={follow_icon} style='left:0; top:0; right:0; bottom:0; margin:auto; width:60%; height:60%;' />
@@ -101,12 +116,14 @@ class Index extends Component {
               
             </cover-view>
 
-            <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:68px; height:68px; border:1px solid #aaa; border-radius:34px; z-index:99; background-color:green;'></cover-view>
+            <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66px; height:66px; border:1px solid #82AEFF; border-radius:33px; z-index:99; background-color:#296CFF;'>
+              <cover-image src={trip_icon} style='left:0; top:0; right:0; bottom:0; margin:10px auto; width:66%; height:66%;' />
+            </cover-view>
           </cover-view>
 
           <cover-view className='map_show_location'
-              style='position:fixed; bottom:110px; left:10px; z-index:99; width:44px; height:44px;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto;' onClick={showLocation}>⊙</Button>
+              style='position:fixed; bottom:122px; left:10px; z-index:99; width:44px; height:44px;'>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={showLocation}>⊙</Button>
           </cover-view>
         </map>
 
