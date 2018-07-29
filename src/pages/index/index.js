@@ -41,8 +41,24 @@ class Index extends Component {
     }, 2000)
   }
 
-  tick() {
-    this.setState({mapScale:'17'})
+  mapScale_enlargement() {
+    var scale = Number(this.state.mapScale)
+    console.log(scale)
+    if (scale < 18) {
+      this.setState({mapScale:(scale + 1) + ""})
+    }
+  }
+  mapScale_reduction() {
+    var scale = Number(this.state.mapScale)
+    console.log(scale)
+    if (scale > 5) {
+      this.setState({mapScale:(scale - 1) + ""})
+    }
+  }
+
+  showLocation() {
+    this.mapCtx.moveToLocation()
+    this.setState({mapScale:"18"})
   }
 
 
@@ -68,8 +84,9 @@ class Index extends Component {
           <cover-view className='map_+_-'
               style='position:fixed; top:45vh; right:10px; z-index:99; width:44px; height:99px;'>
             <Button style='position:absolute; left:0; top:0; right:0; bottom:49%; margin:auto;'
-                    onClick={tick}>+</Button>
-            <Button style='position:absolute; left:0; top:49%; right:0; bottom:0; margin:auto;'>-</Button>
+                    onClick={mapScale_enlargement}>+</Button>
+            <Button style='position:absolute; left:0; top:49%; right:0; bottom:0; margin:auto;'
+                    onClick={mapScale_reduction}>-</Button>
           </cover-view>
           
           <cover-view className='tool_bar'
@@ -83,7 +100,7 @@ class Index extends Component {
 
           <cover-view className='map_+_-'
               style='position:fixed; bottom:110px; left:10px; z-index:99; width:44px; height:44px;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto;'>⊙</Button>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto;' onClick={showLocation}>⊙</Button>
           </cover-view>
         </map>
 
