@@ -6,6 +6,9 @@ import { add, minus, asyncAdd } from '../../actions/counter'
 
 import './index.scss'
 
+import follow_icon from './images/follow.png'
+import my_icon from './images/my.png'
+
 @connect(({ counter }) => ({
   counter
 }), (dispatch) => ({
@@ -55,10 +58,10 @@ class Index extends Component {
       this.setState({mapScale:(scale - 1) + ""})
     }
   }
-
+  // 地图上显示当前位置
   showLocation() {
     this.mapCtx.moveToLocation()
-    this.setState({mapScale:"18"})
+    // this.setState({mapScale:"18"})
   }
 
 
@@ -67,20 +70,13 @@ class Index extends Component {
   render () {
     return (
       <View className='index'>
-        {/* <map id="map" longitude="113.324520" latitude="23.099994" 
-        scale="14" 
-        controls="{{controls}}" 
-        bindcontroltap="controltap" 
-        markers="{{markers}}" 
-        bindmarkertap="markertap" 
-        polyline="{{polyline}}" 
-        bindregionchange="regionchange" 
-        show-location 
-        style="width: 100%; height: 300px;"></map> */}
+
         <map id="myMap"
              style='left:0; top:0; width:100vw; height:100vh;'
+             longitude="113.324520" latitude="23.099994"
              scale={this.state.mapScale}
              show-location>
+
           <cover-view className='map_+_-'
               style='position:fixed; top:45vh; right:10px; z-index:99; width:44px; height:99px;'>
             <Button style='position:absolute; left:0; top:0; right:0; bottom:49%; margin:auto;'
@@ -92,13 +88,23 @@ class Index extends Component {
           <cover-view className='tool_bar'
               style='position:fixed; left:0; right:0; margin:auto; bottom:20px; z-index:999; width:80vw; height:70px;'>
             <cover-view style='width:100%; height:60px; margin:3px 0; border:1px solid #ddd; border-radius:50px; background-color:white;'>
-              <cover-view style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></cover-view>
-              <cover-view style='position:absolute; left:55%; top:0; right:0; bottom:0; margin:auto; width:45px; height:45px; z-index:99; background-color:blue;'></cover-view>
+
+              <cover-view style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:60px; height:60px; z-index:99;'>
+                <cover-image src={follow_icon} style='left:0; top:0; right:0; bottom:0; margin:auto; width:60%; height:60%;' />
+                <cover-view style='left:0; top:0; right:0; bottom:10%; margin:auto; width:100%; height:30%; font-size:70%; text-align:center;'>我的关注</cover-view>
+              </cover-view>
+              
+              <cover-view style='position:absolute; left:55%; top:0; right:0; bottom:0; margin:auto; width:60px; height:60px; z-index:99;'>
+                <cover-image src={my_icon} style='left:0; top:0; right:0; bottom:0; margin:auto; width:60%; height:60%;' />
+                <cover-view style='left:0; top:0; right:0; bottom:10%; margin:auto; width:100%; height:30%; font-size:70%; text-align:center;'>我的</cover-view>
+              </cover-view>
+              
             </cover-view>
-            <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66px; height:66px; border:1px solid #aaa; border-radius:33px; z-index:99; background-color:green;'></cover-view>
+
+            <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:68px; height:68px; border:1px solid #aaa; border-radius:34px; z-index:99; background-color:green;'></cover-view>
           </cover-view>
 
-          <cover-view className='map_+_-'
+          <cover-view className='map_show_location'
               style='position:fixed; bottom:110px; left:10px; z-index:99; width:44px; height:44px;'>
             <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto;' onClick={showLocation}>⊙</Button>
           </cover-view>
