@@ -45,6 +45,7 @@ class Index extends Component {
     this.showLocation()
   }
 
+  // 地图放大
   mapScale_enlargement() {
     var scale = Number(this.state.mapScale)
     console.log(scale)
@@ -52,6 +53,7 @@ class Index extends Component {
       this.setState({mapScale:(scale + 1) + ""})
     }
   }
+  // 地图缩小
   mapScale_reduction() {
     var scale = Number(this.state.mapScale)
     console.log(scale)
@@ -70,13 +72,12 @@ class Index extends Component {
         console.log(_latitude, _longitude)
         _self.setState({
           longitude:_longitude + "", 
-          latitude:_latitude + ""
+          latitude:_latitude + "",
+          mapScale:"18"
         })
         _self.mapCtx.moveToLocation()
       }
     })
-    // this.mapCtx.moveToLocation()
-    // this.setState({mapScale:"18"})
   }
 
 
@@ -117,7 +118,7 @@ class Index extends Component {
             </cover-view>
 
             <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66px; height:66px; border:1px solid #82AEFF; border-radius:33px; z-index:99; background-color:#296CFF;'>
-              <cover-image src={trip_icon} style='left:0; top:0; right:0; bottom:0; margin:10px auto; width:66%; height:66%;' />
+              <cover-image src={trip_icon} style='left:0; top:0; right:0; bottom:0; margin:13px auto; width:55%; height:55%;' />
             </cover-view>
           </cover-view>
 
