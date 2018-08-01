@@ -1,6 +1,8 @@
 import {
   ADD,
-  MINUS
+  MINUS,
+  LOGIN,
+  LOGOUT
 } from '../constants/counter'
 
 export const add = () => {
@@ -20,5 +22,22 @@ export function asyncAdd () {
     setTimeout(() => {
       dispatch(add())
     }, 2000)
+  }
+}
+
+// 用户登录
+export const login = (token, nickName, avatarURL) => {
+  return {
+    type: LOGIN,
+    token: token,
+    nickName: nickName,
+    avatarURL: avatarURL
+  }
+}
+
+// 用户注销
+export const logout = () => {
+  return {
+    type: LOGOUT
   }
 }
