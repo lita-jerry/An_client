@@ -63,17 +63,27 @@ class Index extends Component {
   }
   // 地图上显示当前位置
   showLocation() {
-    console.log('oye')
+    var _self = this
+    wx.getLocation({
+      type: 'gcj02', //返回可以用于wx.openLocation的经纬度
+      success: function(res) {
+        var _latitude = res.latitude
+        var _longitude = res.longitude
+        console.log(_latitude, _longitude)
+        _self.setState({
+          longitude:_longitude + "", 
+          latitude:_latitude + "",
+          mapScale:"18"
+        })
+        _self.mapCtx.moveToLocation()
+      }
+    })
   }
   // 获取用户信息
   onGotUserInfo (e) {
     console.log(e.detail.errMsg)
     console.log(e.detail.userInfo)
     console.log(e.detail.rawData)
-  }
-  // 地图上显示当前位置
-  showLocations() {
-    console.log('oye')
   }
 
 
@@ -115,7 +125,7 @@ class Index extends Component {
                   ? <cover-image id='start-btn' src={trip_icon} bindtap={this.showLocation} />
                   : <cover-image id='start-btn' src={trip_icon} bindtap={this.mapScale_reduction} />
               } */}
-              <button open-type="getUserInfo" lang="zh_CN" bindgetuserinfo={showLocations}>获取用户信息</button>
+              <Button openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo}>获取用户信息</Button>
             </cover-view>
           </cover-view>
 
