@@ -41,7 +41,7 @@ class Index extends Component {
   componentWillUnmount () { }
 
   componentDidShow () { 
-    this.mapCtx = wx.createMapContext('myMap')
+    this.mapCtx = wx.createMapContext('map')
     this.showLocation()
   }
 
@@ -87,44 +87,43 @@ class Index extends Component {
     return (
       <View className='index'>
 
-        <map id="myMap"
-             style='left:0; top:0; width:100vw; height:100vh;'
+        <map id="map"
              longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale}
              show-location>
 
-          <cover-view className='map_+_-'
-              style='position:fixed; top:45vh; right:10px; z-index:99; width:44px; height:99px;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:49%; width:99%; height:99%; margin:auto;'
-                    onClick={mapScale_enlargement}>+</Button>
-            <Button style='position:absolute; left:0; top:49%; right:0; bottom:0; width:99%; height:99%; margin:auto;'
-                    onClick={mapScale_reduction}>-</Button>
+          <cover-view class='map-zoom-bg'>
+            <Button id='map-zoom-enlargement' onClick={mapScale_enlargement}>+</Button>
+            <Button id='map-zoom-reduction' onClick={mapScale_reduction}>-</Button>
           </cover-view>
           
-          <cover-view className='tool_bar'
-              style='position:fixed; left:0; right:0; margin:auto; bottom:25px; z-index:999; width:80vw; height:70px;'>
-            <cover-view style='width:98%; height:60px; margin:3px 0; border:1px solid #ddd; border-radius:50px; background-color:white;'>
+          <cover-view class='map-tool-bar-bg'>
 
-              <cover-view style='position:absolute; left:0; top:0; right:55%; bottom:0; margin:auto; width:60px; height:60px; z-index:99;'>
-                <cover-image src={follow_icon} style='left:0; top:0; right:0; bottom:0; margin:auto; width:60%; height:60%;' />
-                <cover-view style='left:0; top:0; right:0; bottom:10%; margin:auto; width:100%; height:30%; font-size:70%; text-align:center;'>我的关注</cover-view>
+            <cover-view class='map-tool-box-bg'>
+
+              <cover-view id='map-tool-left-box'>
+                <cover-image src={follow_icon} class='map-tool-box-image' />
+                <cover-view class='map-tool-box-text'>我的关注</cover-view>
               </cover-view>
               
-              <cover-view style='position:absolute; left:55%; top:0; right:0; bottom:0; margin:auto; width:60px; height:60px; z-index:99;'>
-                <cover-image src={my_icon} style='left:0; top:0; right:0; bottom:0; margin:auto; width:60%; height:60%;' />
-                <cover-view style='left:0; top:0; right:0; bottom:10%; margin:auto; width:100%; height:30%; font-size:70%; text-align:center;'>我的</cover-view>
+              <cover-view id='map-tool-right-box'>
+                <cover-image src={my_icon} class='map-tool-box-image' />
+                <cover-view class='map-tool-box-text'>我的</cover-view>
               </cover-view>
               
             </cover-view>
 
-            <cover-view style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66px; height:66px; border:1px solid #82AEFF; border-radius:33px; z-index:99; background-color:#296CFF;'>
-              <cover-image src={trip_icon} style='left:0; top:0; right:0; bottom:0; margin:13px auto; width:55%; height:55%;' />
+            <cover-view class='start-bg' >
+              {
+                this.props.counter.userState.isLogin
+                  ? <cover-image id='start-btn' src={trip_icon} bindtap={this.showLocation} />
+                  : <cover-image id='start-btn' src={trip_icon} bindtap={this.mapScale_reduction} />
+              }
             </cover-view>
           </cover-view>
 
-          <cover-view className='map_show_location'
-              style='position:fixed; bottom:122px; left:10px; z-index:99; width:44px; height:44px;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={showLocation}>⊙</Button>
+          <cover-view id='map-show-location-bg'>
+            <Button id='map-show-location-btn' onClick={showLocation}>⊙</Button>
           </cover-view>
         </map>
 
