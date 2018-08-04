@@ -6,6 +6,8 @@ import { add, minus, asyncAdd } from '../../actions/counter'
 
 import './index.scss'
 
+import { login } from '../login/user'
+
 import follow_icon from './images/follow.png'
 import my_icon from './images/my.png'
 import trip_icon from './images/trip.png'
@@ -83,9 +85,20 @@ class Index extends Component {
   onGotUserInfo (e) {
     console.log(e.detail.errMsg)
     console.log(e.detail.userInfo)
-    console.log(e.detail.rawData)
+    console.log(e.detail)
+    
+    if (e.detail.userInfo) {
+      Taro.showLoading({
+        title: '登录中',
+        mask: true
+      })
+      
+      login(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
+        console.log(err)
+        Taro.hideLoading()
+      })
+    }
   }
-
 
   componentDidHide () { }
 
@@ -120,12 +133,14 @@ class Index extends Component {
             </cover-view>
 
             <cover-view class='start-bg' >
-              {/* {
-                this.props.counter.userState.isLogin
-                  ? <cover-image id='start-btn' src={trip_icon} bindtap={this.showLocation} />
-                  : <cover-image id='start-btn' src={trip_icon} bindtap={this.mapScale_reduction} />
-              } */}
-              <Button openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo}>获取用户信息</Button>
+              <cover-image id='start-icon' src={trip_icon} >
+                
+              </cover-image>
+              {
+                  this.props.counter.userState.isLogin
+                    ? <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' />
+                    : <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' />
+              }
             </cover-view>
           </cover-view>
 

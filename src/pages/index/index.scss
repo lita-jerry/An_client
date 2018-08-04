@@ -82,8 +82,14 @@
     background-color:#296CFF;
 }
 
-#start-btn{
+#start-icon{
     left:0; top:0; right:0; bottom:0; margin:13PX auto; 
     width:55%; height:55%; 
-    background-color:#ffffff;
+}
+
+#start-btn{
+    position:absolute; 
+    left:-5%; top:-5%; right:-5%; bottom:-5%; margin:auto; 
+    width:110%; height:110%; 
+    z-index:99; 
 }
