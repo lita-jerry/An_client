@@ -155,8 +155,8 @@ class Index extends Component {
              show-location>
 
           <cover-view class='map-zoom-bg'>
-            <Button id='map-zoom-enlargement' onClick={mapScale_enlargement}>+</Button>
-            <Button id='map-zoom-reduction' onClick={mapScale_reduction}>-</Button>
+            <Button id='map-zoom-enlargement' onClick={mapScale_enlargement} hoverClass='none'>+</Button>
+            <Button id='map-zoom-reduction' onClick={mapScale_reduction} hoverClass='none'>-</Button>
           </cover-view>
           
           <cover-view class='map-tool-bar-bg'>
@@ -181,14 +181,14 @@ class Index extends Component {
               </cover-image>
               {
                   this.props.counter.userState.isLogin
-                    ? <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' />
-                    : <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' />
+                    ? <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' hoverClass='none' />
+                    : <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' hoverClass='none' />
               }
             </cover-view>
           </cover-view>
 
           <cover-view id='map-show-location-bg'>
-            <Button id='map-show-location-btn' onClick={showLocation}>⊙</Button>
+            <Button id='map-show-location-btn' onClick={showLocation} hoverClass='none'>⊙</Button>
           </cover-view>
         </map>
 
