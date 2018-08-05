@@ -2,11 +2,11 @@ import Taro, { Component } from '@tarojs/taro'
 import { View, Button, Text, Input, Slider, ScrollView } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
-import { add, minus, asyncAdd } from '../../actions/counter'
+import { add, minus, asyncAdd, login } from '../../actions/counter'
 
 import './index.scss'
 
-import { login } from '../login/user'
+import { regist } from '../login/user'
 
 import follow_icon from './images/follow.png'
 import my_icon from './images/my.png'
@@ -23,6 +23,9 @@ import trip_icon from './images/trip.png'
   },
   asyncAdd () {
     dispatch(asyncAdd())
+  },
+  login (token, nickName, avatarURL) {
+    dispatch(login(token, nickName, avatarURL))
   }
 }))
 class Index extends Component {
@@ -93,9 +96,15 @@ class Index extends Component {
         mask: true
       })
       
-      login(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
-        console.log(err)
+      regist(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
+        this.props.login('token', 'nickName', 'avatarURL')
+        // this.props.add()
         Taro.hideLoading()
+        Taro.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 2000
+        })
       })
     }
   }
