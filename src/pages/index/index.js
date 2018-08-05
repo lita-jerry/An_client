@@ -6,8 +6,6 @@ import { add, minus, asyncAdd, login } from '../../actions/counter'
 
 import './index.scss'
 
-import { regist } from '../login/user'
-
 import follow_icon from './images/follow.png'
 import my_icon from './images/my.png'
 import trip_icon from './images/trip.png'
@@ -96,9 +94,7 @@ class Index extends Component {
         mask: true
       })
       
-      regist(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
-        this.props.login('token', 'nickName', 'avatarURL')
-        // this.props.add()
+      this.regist(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
         Taro.hideLoading()
         Taro.showToast({
           title: '登录成功',
@@ -107,6 +103,44 @@ class Index extends Component {
         })
       })
     }
+  }
+
+  /**
+   * 用户注册,注册成功后自动执行登录流程,回调中err为空即表示注册并已经登陆成功
+   * @param {String} nickName 用户昵称
+   * @param {String} avatarURL 用户头像URL
+   * @param {(err: String)} callback 执行回调
+   */
+  regist (nickName, avatarURL, callback) {
+    var self = this
+    wx.login({
+        success: function(res) {
+          if (res.code) {
+            //发起网络请求
+            Taro.request({
+              url: 'https://jerrysir.com/v1/u/wxmp/regist',
+              data: {
+                code: res.code,
+                nickname: nickName,
+                avatarurl: avatarURL
+              }
+            })
+            .then(res => {
+              console.log(res.data)
+              if (res.data.code === 0) {
+                // 更改用户状态
+                self.props.login('token', 'nickName', 'avatarURL')
+                if (callback) { callback() }
+              } else {
+                if (callback) { callback('登录失败!' + res.data.msg) }
+              }
+            })
+          } else {
+            console.log('登录失败！' + res.errMsg)
+            if (callback) { callback('登录失败!' + res.errMsg) }
+          }
+        }
+    });
   }
 
   componentDidHide () { }
