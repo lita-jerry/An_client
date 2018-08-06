@@ -1,5 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Button } from '@tarojs/components'
+import { View, Button, CoverView, CoverImage } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
@@ -87,67 +87,6 @@ class Index extends Component {
     Taro.navigateTo({url:url})
   }
 
-  // 获取用户信息
-  onGotUserInfo (e) {
-    console.log(e.detail.errMsg)
-    console.log(e.detail.userInfo)
-    console.log(e.detail)
-    
-    if (e.detail.userInfo) {
-      Taro.showLoading({
-        title: '登录中',
-        mask: true
-      })
-      
-      this.regist(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
-        Taro.hideLoading()
-        Taro.showToast({
-          title: '登录成功',
-          icon: 'success',
-          duration: 2000
-        })
-      })
-    }
-  }
-
-  /**
-   * 用户注册,注册成功后自动执行登录流程,回调中err为空即表示注册并已经登陆成功
-   * @param {String} nickName 用户昵称
-   * @param {String} avatarURL 用户头像URL
-   * @param {(err: String)} callback 执行回调
-   */
-  regist (nickName, avatarURL, callback) {
-    var self = this
-    wx.login({
-        success: function(res) {
-          if (res.code) {
-            //发起网络请求
-            Taro.request({
-              url: 'https://jerrysir.com/v1/u/wxmp/regist',
-              data: {
-                code: res.code,
-                nickname: nickName,
-                avatarurl: avatarURL
-              }
-            })
-            .then(res => {
-              console.log(res.data)
-              if (res.data.code === 0) {
-                // 更改用户状态
-                self.props.login('token', 'nickName', 'avatarURL')
-                if (callback) { callback() }
-              } else {
-                if (callback) { callback('登录失败!' + res.data.msg) }
-              }
-            })
-          } else {
-            console.log('登录失败！' + res.errMsg)
-            if (callback) { callback('登录失败!' + res.errMsg) }
-          }
-        }
-    });
-  }
-
   componentDidHide () { }
 
   render () {
@@ -159,42 +98,39 @@ class Index extends Component {
              scale={this.state.mapScale}
              show-location>
 
-          <cover-view class='map-zoom-bg'>
+          <CoverView class='map-zoom-bg'>
             <Button id='map-zoom-enlargement' onClick={mapScale_enlargement} hoverClass='none'>+</Button>
             <Button id='map-zoom-reduction' onClick={mapScale_reduction} hoverClass='none'>-</Button>
-          </cover-view>
+          </CoverView>
           
-          <cover-view class='map-tool-bar-bg'>
+          <CoverView class='map-tool-bar-bg'>
 
-            <cover-view class='map-tool-box-bg'>
+            <CoverView class='map-tool-box-bg'>
 
-              <cover-view id='map-tool-left-box'>
-                <cover-image src={follow_icon} class='map-tool-box-image' />
-                <cover-view class='map-tool-box-text'>我的关注</cover-view>
-              </cover-view>
+              <CoverView id='map-tool-left-box'>
+                <CoverImage src={follow_icon} class='map-tool-box-image' />
+                <CoverView class='map-tool-box-text'>我的关注</CoverView>
+              </CoverView>
               
-              <cover-view id='map-tool-right-box'>
-                <cover-image src={my_icon} class='map-tool-box-image' />
-                <cover-view class='map-tool-box-text'>我的</cover-view>
-              </cover-view>
+              <CoverView id='map-tool-right-box'>
+                <CoverImage src={my_icon} class='map-tool-box-image' />
+                <CoverView class='map-tool-box-text'>我的</CoverView>
+              </CoverView>
               
-            </cover-view>
+            </CoverView>
 
-            <cover-view class='start-bg' >
-              <cover-image id='start-icon' src={trip_icon} >
-                
-              </cover-image>
-              {
-                  this.props.counter.userState.isLogin
-                    ? <Button id='start-btn' openType="openSetting" plain hoverClass='none' />
-                    : <Button id='start-btn' onClick={this.navigateTo.bind(this,'/pages/login/login')}  plain hoverClass='none' />
-              }
-            </cover-view>
-          </cover-view>
+            <CoverView class='start-bg' >
+            {
+              this.props.counter.userState.isLogin
+                ? <CoverImage id='start-icon' src={trip_icon} onClick={this.showLocation} />
+                : <CoverImage id='start-icon' src={trip_icon} onClick={this.navigateTo.bind(this,'/pages/login/login')} />
+            }
+            </CoverView>
+          </CoverView>
 
-          <cover-view id='map-show-location-bg'>
+          <CoverView id='map-show-location-bg'>
             <Button id='map-show-location-btn' onClick={showLocation} hoverClass='none'>⊙</Button>
-          </cover-view>
+          </CoverView>
         </map>
 
        
@@ -204,10 +140,6 @@ class Index extends Component {
         <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
         <View>{this.props.counter.num}</View>
         <View>Hello, World</View> */}
-
-        {/* <View style='height:150px;background-color:rgb(26,173,25);'>A</View>
-          <View style='height:150px;background-color:rgb(39,130,215);'>B</View>
-          <View style='height:150px;background-color:rgb(241,241,241);color: #333;'>C</View> */}
 
       </View>
     )

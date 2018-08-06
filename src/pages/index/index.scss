@@ -23,14 +23,20 @@
 }
 
 .map-tool-bar-bg{
-    position:fixed; left:0; right:0; margin:auto; bottom:25PX; z-index:999; width:80vw; height:70PX;
+    position:fixed; 
+    left:0; right:0; 
+    margin:auto; 
+    bottom:25PX; 
+    z-index:99; 
+    width:80vw; height:70PX;
 }
 
 .map-tool-box-bg{
-    width:98%; height:60PX; 
+    width:79vw; height:60PX; 
     margin:3PX 0; 
     border:1PX solid #ddd; 
     border-radius:50PX; 
+    
     background-color:white;
 }
 
@@ -38,14 +44,14 @@
     position:absolute; 
     left:0; top:0; right:55%; bottom:0; margin:auto; 
     width:60PX; height:60PX; 
-    z-index:99;
+    
 }
 
 #map-tool-right-box{
     position:absolute; 
     left:55%; top:0; right:0; bottom:0; margin:auto; 
     width:60PX; height:60PX; 
-    z-index:99;
+    
 }
 
 .map-tool-box-image{
@@ -60,6 +66,32 @@
     text-align:center;
 }
 
+.start-bg{
+    position:absolute; 
+    left:0; top:0; right:0; bottom:0; margin:auto; 
+    width:66PX; height:66PX; 
+    border:1PX solid #82AEFF; 
+    border-radius:33PX; 
+    
+    background-color:#296CFF;
+}
+
+#start-icon{
+    position:absolute; 
+    left:0; top:0; right:0; bottom:0; margin:13PX auto; 
+    width:55%; height:55%; 
+    
+}
+
+#start-btn{
+    position:absolute; 
+    left:-5%; top:-5%; right:-5%; bottom:-5%; margin:auto; 
+    width:110%; height:110%; 
+    z-index:99; 
+    background-color:yellow;
+}
+
+
 #map-show-location-bg{
     position:fixed; 
     bottom:122PX; left:10PX; 
@@ -70,26 +102,4 @@
     position:absolute; 
     left:0; top:0; right:0; bottom:0; margin:auto; 
     width:99%; height:99%;
-}
-
-.start-bg{
-    position:absolute; 
-    left:0; top:0; right:0; bottom:0; margin:auto; 
-    width:66PX; height:66PX; 
-    border:1PX solid #82AEFF; 
-    border-radius:33PX; 
-    z-index:99; 
-    background-color:#296CFF;
-}
-
-#start-icon{
-    left:0; top:0; right:0; bottom:0; margin:13PX auto; 
-    width:55%; height:55%; 
-}
-
-#start-btn{
-    position:absolute; 
-    left:-5%; top:-5%; right:-5%; bottom:-5%; margin:auto; 
-    width:110%; height:110%; 
-    z-index:99; 
 }
