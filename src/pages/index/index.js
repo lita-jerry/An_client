@@ -1,5 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Button, Text, Input, Slider, ScrollView } from '@tarojs/components'
+import { View, Button } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
@@ -82,6 +82,11 @@ class Index extends Component {
       }
     })
   }
+
+  navigateTo(url) {
+    Taro.navigateTo({url:url})
+  }
+
   // 获取用户信息
   onGotUserInfo (e) {
     console.log(e.detail.errMsg)
@@ -181,8 +186,8 @@ class Index extends Component {
               </cover-image>
               {
                   this.props.counter.userState.isLogin
-                    ? <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' hoverClass='none' />
-                    : <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} plain='true' hoverClass='none' />
+                    ? <Button id='start-btn' openType="openSetting" plain hoverClass='none' />
+                    : <Button id='start-btn' onClick={this.navigateTo.bind(this,'/pages/login/login')}  plain hoverClass='none' />
               }
             </cover-view>
           </cover-view>

@@ -13,7 +13,8 @@ const store = configStore()
 class App extends Component {
   config = {
     pages: [
-      'pages/index/index'
+      'pages/index/index',
+      'pages/login/login'
     ],
     window: {
       backgroundTextStyle: 'light',
