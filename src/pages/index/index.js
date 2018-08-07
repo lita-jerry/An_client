@@ -22,8 +22,8 @@ import trip_icon from './images/trip.png'
   asyncAdd () {
     dispatch(asyncAdd())
   },
-  login (token, nickName, avatarURL) {
-    dispatch(login(token, nickName, avatarURL))
+  login (token) {
+    dispatch(login(token))
   }
 }))
 class Index extends Component {
@@ -35,6 +35,10 @@ class Index extends Component {
     mapScale : '14',
     longitude: "113.324520",
     latitude: "23.099994"
+  }
+
+  componentDidMount() {
+    this.autoLogin()
   }
 
   componentWillReceiveProps (nextProps) {
@@ -83,8 +87,47 @@ class Index extends Component {
     })
   }
 
-  navigateTo(url) {
-    Taro.navigateTo({url:url})
+  // 关闭当前页面，跳转到应用内的某个页面
+  redirectTo(url) {
+    Taro.redirectTo({url:url})
+  }
+
+  // 自动登录
+  autoLogin() {
+    var self = this
+    Taro.showLoading({
+      mask: true
+    })
+    Taro.login({
+      success: function(loginRes) {
+        console.log(loginRes.code)
+        if (loginRes.code) {
+          Taro.request({
+            url: 'https://jerrysir.com/v1/u/wxmp/login',
+            data: {
+              code: loginRes.code
+            }
+          })
+          .then(requestRes => {
+            console.log(requestRes.data)
+            if (requestRes.data.code === 0) {
+              // 更改用户状态
+              self.props.login(requestRes.data.session)
+              Taro.hideLoading()
+              // 获取用户头像、昵称
+              Taro.getUserInfo({
+                success: function(infoRes){
+                  console.log(infoRes.userInfo)
+                }
+              })
+            } else {
+              console.log('登录失败！' + res.data.msg)
+              Taro.hideLoading()
+            }
+          })
+        }
+      }
+    })
   }
 
   componentDidHide () { }
@@ -123,7 +166,7 @@ class Index extends Component {
             {
               this.props.counter.userState.isLogin
                 ? <CoverImage id='start-icon' src={trip_icon} onClick={this.showLocation} />
-                : <CoverImage id='start-icon' src={trip_icon} onClick={this.navigateTo.bind(this,'/pages/login/login')} />
+                : <CoverImage id='start-icon' src={trip_icon} onClick={this.redirectTo.bind(this,'/pages/login/login')} />
             }
             </CoverView>
           </CoverView>

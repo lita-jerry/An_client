@@ -1,5 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Button } from '@tarojs/components'
+import { View, Button, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
@@ -18,8 +18,8 @@ import './index.scss'
   asyncAdd () {
     dispatch(asyncAdd())
   },
-  login (token, nickName, avatarURL) {
-    dispatch(login(token, nickName, avatarURL))
+  login (token) {
+    dispatch(login(token))
   }
 }))
 
@@ -55,6 +55,10 @@ class Index extends Component {
           icon: 'success',
           duration: 2000
         })
+        // Taro.navigateBack()
+        Taro.reLaunch({
+          url: '/pages/index/index'
+        })
       })
     }
   }
@@ -83,7 +87,7 @@ class Index extends Component {
               console.log(res.data)
               if (res.data.code === 0) {
                 // 更改用户状态
-                self.props.login('token', 'nickName', 'avatarURL')
+                self.props.login('token')
                 if (callback) { callback() }
               } else {
                 if (callback) { callback('登录失败!' + res.data.msg) }
@@ -100,11 +104,12 @@ class Index extends Component {
    render () {
     return (
       <View className='index'>
-        <Button className='add_btn' onClick={this.props.add}>+</Button>
-        <Button className='dec_btn' onClick={this.props.dec}>-</Button>
-        <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
-        <View>{this.props.counter.num}</View>
-        <View>Hello, World</View>
+        <View style='text-align: center; margin-bottom:20px;'>
+          <Image src='' style='margin-top: 30rpx; width: 580rpx; height: 208rpx; background-color:#296CFF;'></Image>
+        </View>
+        <View style='margin: 0 auto; width: 70%;'>
+          <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} type='primary' >微信用户快速登录</Button>
+        </View>
       </View>
     )
   }
