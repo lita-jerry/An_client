@@ -108,26 +108,54 @@ class Index extends Component {
               code: loginRes.code
             }
           })
-          .then(requestRes => {
-            console.log(requestRes.data)
-            if (requestRes.data.code === 0) {
+          .then(loginRequestRes => {
+            console.log(loginRequestRes.data)
+            if (loginRequestRes.data.code === 0) {
               // 更改用户状态
-              self.props.login(requestRes.data.session)
+              self.props.login(loginRequestRes.data.session)
               Taro.hideLoading()
+              // 检查未完成订单
+              self.checkUnfinishedTripOrder()
               // 获取用户头像、昵称
-              Taro.getUserInfo({
-                success: function(infoRes){
-                  console.log(infoRes.userInfo)
-                }
-              })
+              // Taro.getUserInfo({
+              //   success: function(infoRes){
+              //     console.log(infoRes.userInfo)
+              //   }
+              // })
             } else {
-              console.log('登录失败！' + res.data.msg)
+              console.log('登录失败！' + loginRes.data.msg)
               Taro.hideLoading()
             }
           })
         }
       }
     })
+  }
+
+  // 检查未完成行程订单
+  checkUnfinishedTripOrder() {
+    Taro.showLoading({
+      mask: true
+    })
+
+    Taro.request({
+      url: 'https://jerrysir.com/v1/t/unfinished',
+      data: {
+        session: this.props.counter.userState.token
+      }
+    })
+    .then(unfinishedRequestRes => {
+      console.log(unfinishedRequestRes.data)
+      Taro.hideLoading()
+      if (unfinishedRequestRes.data.ordernumber) {
+        //跳转到行程
+      }
+    })
+  }
+
+  // 创建行程订单
+  createTripOrder() {
+    
   }
 
   componentDidHide () { }
