@@ -72,30 +72,30 @@ class Index extends Component {
   regist (nickName, avatarURL, callback) {
     var self = this
     wx.login({
-        success: function(res) {
-          if (res.code) {
+        success: function(loginRes) {
+          if (loginRes.code) {
             //发起网络请求
             Taro.request({
               url: 'https://jerrysir.com/v1/u/wxmp/regist',
               data: {
-                code: res.code,
+                code: loginRes.code,
                 nickname: nickName,
                 avatarurl: avatarURL
               }
             })
-            .then(res => {
-              console.log(res.data)
-              if (res.data.code === 0) {
+            .then(requestRes => {
+              console.log(requestRes.data)
+              if (requestRes.data.code === 0) {
                 // 更改用户状态
-                self.props.login('token')
+                self.props.login(loginRes.data.session)
                 if (callback) { callback() }
               } else {
-                if (callback) { callback('登录失败!' + res.data.msg) }
+                if (callback) { callback('登录失败!' + requestRes.data.msg) }
               }
             })
           } else {
-            console.log('登录失败！' + res.errMsg)
-            if (callback) { callback('登录失败!' + res.errMsg) }
+            console.log('登录失败！' + loginRes.errMsg)
+            if (callback) { callback('登录失败!' + loginRes.errMsg) }
           }
         }
     });
