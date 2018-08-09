@@ -155,7 +155,28 @@ class Index extends Component {
 
   // 创建行程订单
   createTripOrder() {
-    
+    if (this.props.counter.userState.isLogin) {
+      Taro.showLoading({
+        title: '创建行程',
+        mask: true
+      })
+
+      Taro.request({
+        url: 'https://jerrysir.com/v1/t/create',
+        data: {
+          session: this.props.counter.userState.token
+        }
+      })
+      .then(createTripOrderRequestRes => {
+        console.log(createTripOrderRequestRes.data)
+        Taro.hideLoading()
+        if (createTripOrderRequestRes.data.ordernumber) {
+          //跳转到行程
+        }
+      })
+    } else {
+      this.redirectTo('/pages/login/login')
+    }
   }
 
   componentDidHide () { }
@@ -193,7 +214,7 @@ class Index extends Component {
             <CoverView class='start-bg' >
             {
               this.props.counter.userState.isLogin
-                ? <CoverImage id='start-icon' src={trip_icon} onClick={this.showLocation} />
+                ? <CoverImage id='start-icon' src={trip_icon} onClick={this.createTripOrder} />
                 : <CoverImage id='start-icon' src={trip_icon} onClick={this.redirectTo.bind(this,'/pages/login/login')} />
             }
             </CoverView>
