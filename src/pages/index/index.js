@@ -4,6 +4,8 @@ import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
 
+// import Socket from 'socket.io-client'
+
 import './index.scss'
 
 import follow_icon from './images/follow.png'
@@ -39,6 +41,7 @@ class Index extends Component {
 
   componentDidMount() {
     this.autoLogin()
+    this.test()
   }
 
   componentWillReceiveProps (nextProps) {
@@ -123,7 +126,7 @@ class Index extends Component {
               //   }
               // })
             } else {
-              console.log('登录失败！' + loginRes.data.msg)
+              console.log('登录失败！' + loginRequestRes.data.msg)
               Taro.hideLoading()
             }
           })
@@ -148,7 +151,7 @@ class Index extends Component {
       console.log(unfinishedRequestRes.data)
       Taro.hideLoading()
       if (unfinishedRequestRes.data.ordernumber) {
-        //跳转到行程
+        console.log('跳转到行程' + unfinishedRequestRes.data.ordernumber)
       }
     })
   }
@@ -171,7 +174,7 @@ class Index extends Component {
         console.log(createTripOrderRequestRes.data)
         Taro.hideLoading()
         if (createTripOrderRequestRes.data.ordernumber) {
-          //跳转到行程
+          console.log('跳转到行程' + createTripOrderRequestRes.data.ordernumber)
         }
       })
     } else {
@@ -180,6 +183,11 @@ class Index extends Component {
   }
 
   componentDidHide () { }
+
+  test () {
+    // const socket = Socket('https://jerrysir.com/v1/t/s')
+    // var socket = require('socket.io-client')('https://jerrysir.com/v1/t/s');
+  }
 
   render () {
     return (

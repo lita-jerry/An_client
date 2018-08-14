@@ -87,7 +87,7 @@ class Index extends Component {
               console.log(requestRes.data)
               if (requestRes.data.code === 0) {
                 // 更改用户状态
-                self.props.login(loginRes.data.session)
+                self.props.login(requestRes.data.session)
                 if (callback) { callback() }
               } else {
                 if (callback) { callback('登录失败!' + requestRes.data.msg) }
