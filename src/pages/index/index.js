@@ -4,7 +4,7 @@ import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
 
-// import Socket from 'socket.io-client'
+import pomelo from 'pomelo-weixin-client'
 
 import './index.scss'
 
@@ -41,7 +41,6 @@ class Index extends Component {
 
   componentDidMount() {
     this.autoLogin()
-    this.test()
   }
 
   componentWillReceiveProps (nextProps) {
@@ -97,6 +96,9 @@ class Index extends Component {
 
   // 自动登录
   autoLogin() {
+    // 检查本地是否有LoginToken
+    // 有的话Entry
+
     var self = this
     Taro.showLoading({
       mask: true
@@ -105,34 +107,18 @@ class Index extends Component {
       success: function(loginRes) {
         console.log(loginRes.code)
         if (loginRes.code) {
-          Taro.request({
-            url: 'https://jerrysir.com/v1/u/wxmp/login',
-            data: {
-              code: loginRes.code
-            }
-          })
-          .then(loginRequestRes => {
-            console.log(loginRequestRes.data)
-            if (loginRequestRes.data.code === 0) {
-              // 更改用户状态
-              self.props.login(loginRequestRes.data.session)
-              Taro.hideLoading()
-              // 检查未完成订单
-              self.checkUnfinishedTripOrder()
-              // 获取用户头像、昵称
-              // Taro.getUserInfo({
-              //   success: function(infoRes){
-              //     console.log(infoRes.userInfo)
-              //   }
-              // })
-            } else {
-              console.log('登录失败！' + loginRequestRes.data.msg)
-              Taro.hideLoading()
-            }
-          })
+          pomelo.init({
+            host: 'jerrysir.com/',
+            port: 3010
+          }, function() {
+              console.log('success');
+              pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: loginRes.code, nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
+                console.log(data);
+              });
+          });
         }
       }
-    })
+    });
   }
 
   // 检查未完成行程订单
@@ -183,11 +169,6 @@ class Index extends Component {
   }
 
   componentDidHide () { }
-
-  test () {
-    // const socket = Socket('https://jerrysir.com/v1/t/s')
-    // var socket = require('socket.io-client')('https://jerrysir.com/v1/t/s');
-  }
 
   render () {
     return (
