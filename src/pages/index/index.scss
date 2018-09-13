@@ -1,4 +1,4 @@
-#map{
+.map{
     left:0; top:0; 
     width:100vw; height:100vh;
 }
@@ -10,13 +10,13 @@
     width:44PX; height:99PX;
 }
 
-#map-zoom-enlargement{
+.map-zoom-enlargement{
     position:absolute; 
     left:0; top:0; right:0; bottom:49%; margin:auto;
     width:44PX; height:44PX; 
 }
 
-#map-zoom-reduction{
+.map-zoom-reduction{
     position:absolute; 
     left:0; top:51%; right:0; bottom:0; margin:auto;
     width:44PX; height:44PX; 
@@ -40,14 +40,14 @@
     background-color:white;
 }
 
-#map-tool-left-box{
+.map-tool-left-box{
     position:absolute; 
     left:0; top:0; right:55%; bottom:0; margin:auto; 
     width:60PX; height:60PX; 
     
 }
 
-#map-tool-right-box{
+.map-tool-right-box{
     position:absolute; 
     left:55%; top:0; right:0; bottom:0; margin:auto; 
     width:60PX; height:60PX; 
@@ -76,14 +76,14 @@
     background-color:#296CFF;
 }
 
-#start-icon{
+.start-icon{
     position:absolute; 
     left:0; top:0; right:0; bottom:0; margin:13PX auto; 
     width:55%; height:55%; 
     
 }
 
-#start-btn{
+.start-btn{
     position:absolute; 
     left:-5%; top:-5%; right:-5%; bottom:-5%; margin:auto; 
     width:110%; height:110%; 
@@ -92,13 +92,13 @@
 }
 
 
-#map-show-location-bg{
+.map-show-location-bg{
     position:fixed; 
     bottom:122PX; left:10PX; 
     z-index:99; 
     width:44PX; height:44PX;
 }
-#map-show-location-btn{
+.map-show-location-btn{
     position:absolute; 
     left:0; top:0; right:0; bottom:0; margin:auto; 
     width:99%; height:99%;

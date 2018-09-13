@@ -1,5 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Button, CoverView, CoverImage } from '@tarojs/components'
+import { AtButton, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
@@ -36,7 +37,8 @@ class Index extends Component {
   state = {
     mapScale : '14',
     longitude: "113.324520",
-    latitude: "23.099994"
+    latitude: "23.099994",
+    isLoginModalShow: false
   }
 
   componentDidMount() {
@@ -72,19 +74,19 @@ class Index extends Component {
   }
   // 地图上显示当前位置
   showLocation() {
-    var _self = this
+    var self = this
     wx.getLocation({
       type: 'gcj02', //返回可以用于wx.openLocation的经纬度
       success: function(res) {
         var _latitude = res.latitude
         var _longitude = res.longitude
         console.log(_latitude, _longitude)
-        _self.setState({
+        self.setState({
           longitude:_longitude + "", 
           latitude:_latitude + "",
           mapScale:"18"
         })
-        _self.mapCtx.moveToLocation()
+        self.mapCtx.moveToLocation()
       }
     })
   }
@@ -100,9 +102,7 @@ class Index extends Component {
     // 有的话Entry
 
     var self = this
-    Taro.showLoading({
-      mask: true
-    })
+    // Taro.showLoading({ mask: true });
     Taro.login({
       success: function(loginRes) {
         console.log(loginRes.code)
@@ -174,26 +174,27 @@ class Index extends Component {
     return (
       <View className='index'>
 
-        <map id="map"
+        <Map className="map"
              longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale}
              show-location>
 
           <CoverView class='map-zoom-bg'>
-            <Button id='map-zoom-enlargement' onClick={mapScale_enlargement} hoverClass='none'>+</Button>
-            <Button id='map-zoom-reduction' onClick={mapScale_reduction} hoverClass='none'>-</Button>
+          
+            <AtButton className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</AtButton>
+            <AtButton className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</AtButton>
           </CoverView>
           
           <CoverView class='map-tool-bar-bg'>
 
             <CoverView class='map-tool-box-bg'>
 
-              <CoverView id='map-tool-left-box'>
+              <CoverView className='map-tool-left-box'>
                 <CoverImage src={follow_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的关注</CoverView>
               </CoverView>
               
-              <CoverView id='map-tool-right-box'>
+              <CoverView className='map-tool-right-box'>
                 <CoverImage src={my_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的</CoverView>
               </CoverView>
@@ -203,24 +204,32 @@ class Index extends Component {
             <CoverView class='start-bg' >
             {
               this.props.counter.userState.isLogin
-                ? <CoverImage id='start-icon' src={trip_icon} onClick={this.createTripOrder} />
-                : <CoverImage id='start-icon' src={trip_icon} onClick={this.redirectTo.bind(this,'/pages/login/login')} />
+                ? <CoverImage className='start-icon' src={trip_icon} onClick={this.createTripOrder} />
+                : <CoverImage className='start-icon' src={trip_icon} onClick={this.redirectTo.bind(this,'/pages/login/login')} />
             }
             </CoverView>
           </CoverView>
 
-          <CoverView id='map-show-location-bg'>
-            <Button id='map-show-location-btn' onClick={showLocation} hoverClass='none'>⊙</Button>
+          <CoverView className='map-show-location-bg'>
+            <AtButton className='map-show-location-btn' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</AtButton>
           </CoverView>
-        </map>
 
-       
+        </Map>
 
         {/* <Button className='add_btn' onClick={this.props.add}>+</Button>
         <Button className='dec_btn' onClick={this.props.dec}>-</Button>
         <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
         <View>{this.props.counter.num}</View>
         <View>Hello, World</View> */}
+
+        <AtModal isOpened={isLoginModalShow}>
+          <AtModalHeader>需要登录</AtModalHeader>
+          <AtModalContent>小程序需要获得你的公开信息(昵称、头像等)</AtModalContent>
+          <AtModalAction>
+            <Button>取消</Button>
+            <Button>小程序快速登录</Button>
+          </AtModalAction>
+        </AtModal>
 
       </View>
     )

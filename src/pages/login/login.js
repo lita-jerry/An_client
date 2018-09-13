@@ -108,7 +108,7 @@ class Index extends Component {
           <Image src='' style='margin-top: 30rpx; width: 580rpx; height: 208rpx; background-color:#296CFF;'></Image>
         </View>
         <View style='margin: 0 auto; width: 70%;'>
-          <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} type='primary' >微信用户快速登录</Button>
+          {/* <Button id='start-btn' openType="getUserInfo" lang="zh_CN" onGetUserInfo={onGotUserInfo} type='primary' >微信用户快速登录</Button> */}
         </View>
       </View>
     )
