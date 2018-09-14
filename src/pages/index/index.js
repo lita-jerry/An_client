@@ -174,7 +174,6 @@ class Index extends Component {
              show-location>
 
           <CoverView class='map-zoom-bg'>
-          
             <Button className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</Button>
             <Button className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</Button>
           </CoverView>
@@ -186,11 +185,19 @@ class Index extends Component {
               <CoverView className='map-tool-left-box'>
                 <CoverImage src={follow_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的关注</CoverView>
+                {
+                  !this.props.counter.userState.isLogin 
+                  && <Button className='map-tool-left-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
+                }
               </CoverView>
               
               <CoverView className='map-tool-right-box'>
                 <CoverImage src={my_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的</CoverView>
+                {
+                  !this.props.counter.userState.isLogin 
+                  && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
+                }
               </CoverView>
               
             </CoverView>
@@ -210,16 +217,6 @@ class Index extends Component {
           </CoverView>
 
         </Map>
-
-        {/* isLoginModalShow */}
-        {/* <AtModal isOpened={true}>
-          <AtModalHeader>需要登录</AtModalHeader>
-          <AtModalContent>小程序需要获得你的公开信息(昵称、头像)</AtModalContent>
-          <AtModalAction>
-            <Button>取消</Button>
-            <Button openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' >快速登录</Button>
-          </AtModalAction>
-        </AtModal> */}
 
       </View>
     )

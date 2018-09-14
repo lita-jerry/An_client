@@ -45,14 +45,26 @@
     position:absolute; 
     left:0; top:0; right:55%; bottom:0; margin:auto; 
     width:60PX; height:60PX; 
-    
+}
+
+.map-tool-left-box-unlogin{
+    position:absolute; 
+    left:0; top:0; right:55%; bottom:0; margin:auto; 
+    width:60PX; height:60PX; 
+    opacity: 0;
 }
 
 .map-tool-right-box{
     position:absolute; 
     left:55%; top:0; right:0; bottom:0; margin:auto; 
     width:60PX; height:60PX; 
-    
+}
+
+.map-tool-right-box-unlogin{
+    position:absolute; 
+    left:55%; top:0; right:0; bottom:0; margin:auto; 
+    width:60PX; height:60PX; 
+    opacity: 0;
 }
 
 .map-tool-box-image{
