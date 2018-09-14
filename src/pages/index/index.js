@@ -126,45 +126,12 @@ class Index extends Component {
     Taro.showLoading({
       mask: true
     })
-
-    Taro.request({
-      url: 'https://jerrysir.com/v1/t/unfinished',
-      data: {
-        session: this.props.counter.userState.token
-      }
-    })
-    .then(unfinishedRequestRes => {
-      console.log(unfinishedRequestRes.data)
-      Taro.hideLoading()
-      if (unfinishedRequestRes.data.ordernumber) {
-        console.log('跳转到行程' + unfinishedRequestRes.data.ordernumber)
-      }
-    })
   }
 
   // 创建行程订单
   createTripOrder() {
     if (this.props.counter.userState.isLogin) {
-      Taro.showLoading({
-        title: '创建行程',
-        mask: true
-      })
-
-      Taro.request({
-        url: 'https://jerrysir.com/v1/t/create',
-        data: {
-          session: this.props.counter.userState.token
-        }
-      })
-      .then(createTripOrderRequestRes => {
-        console.log(createTripOrderRequestRes.data)
-        Taro.hideLoading()
-        if (createTripOrderRequestRes.data.ordernumber) {
-          console.log('跳转到行程' + createTripOrderRequestRes.data.ordernumber)
-        }
-      })
-    } else {
-      this.redirectTo('/pages/login/login')
+      Taro.showLoading({ title: '创建行程', mask: true });
     }
   }
 
@@ -181,8 +148,8 @@ class Index extends Component {
 
           <CoverView class='map-zoom-bg'>
           
-            <AtButton className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</AtButton>
-            <AtButton className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</AtButton>
+            <Button className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</Button>
+            <Button className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</Button>
           </CoverView>
           
           <CoverView class='map-tool-bar-bg'>
@@ -211,23 +178,17 @@ class Index extends Component {
           </CoverView>
 
           <CoverView className='map-show-location-bg'>
-            <AtButton className='map-show-location-btn' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</AtButton>
+            <Button className='map-show-location-btn' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
 
         </Map>
-
-        {/* <Button className='add_btn' onClick={this.props.add}>+</Button>
-        <Button className='dec_btn' onClick={this.props.dec}>-</Button>
-        <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
-        <View>{this.props.counter.num}</View>
-        <View>Hello, World</View> */}
 
         <AtModal isOpened={isLoginModalShow}>
           <AtModalHeader>需要登录</AtModalHeader>
           <AtModalContent>小程序需要获得你的公开信息(昵称、头像等)</AtModalContent>
           <AtModalAction>
             <Button>取消</Button>
-            <Button>小程序快速登录</Button>
+            <Button>快速登录</Button>
           </AtModalAction>
         </AtModal>
 
