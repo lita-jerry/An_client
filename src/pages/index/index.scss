@@ -1,3 +1,4 @@
+
 .map{
     left:0; top:0; 
     width:100vw; height:100vh;
@@ -80,7 +81,15 @@
     position:absolute; 
     left:0; top:0; right:0; bottom:0; margin:13PX auto; 
     width:55%; height:55%; 
-    
+}
+
+.start-icon-unlogin{
+    position:absolute; 
+    left:0; top:0; right:0; bottom:0; margin:auto; 
+    width:66PX; height:66PX; 
+    border-radius:33PX; 
+    // background: transparent;
+    opacity: 0;
 }
 
 .start-btn{

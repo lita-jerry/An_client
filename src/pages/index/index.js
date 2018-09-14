@@ -135,6 +135,33 @@ class Index extends Component {
     }
   }
 
+  // 获取用户信息
+  onGotUserInfo (e) {
+    console.log(e.detail.errMsg)
+    console.log(e.detail.userInfo)
+    console.log(e.detail)
+      
+    if (e.detail.userInfo) {
+      Taro.showLoading({
+        title: '登录中',
+        mask: true
+      })
+      
+      this.regist(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
+        Taro.hideLoading()
+        Taro.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 2000
+        })
+        // Taro.navigateBack()
+        Taro.reLaunch({
+          url: '/pages/index/index'
+        })
+      })
+    }
+  }
+
   componentDidHide () { }
 
   render () {
@@ -169,12 +196,13 @@ class Index extends Component {
             </CoverView>
 
             <CoverView class='start-bg' >
-            {
-              this.props.counter.userState.isLogin
-                ? <CoverImage className='start-icon' src={trip_icon} onClick={this.createTripOrder} />
-                : <CoverImage className='start-icon' src={trip_icon} onClick={this.redirectTo.bind(this,'/pages/login/login')} />
-            }
+              <CoverImage className='start-icon' src={trip_icon} onClick={this.createTripOrder} />
+              {
+                !this.props.counter.userState.isLogin 
+                && <Button className='start-icon-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
+              }
             </CoverView>
+
           </CoverView>
 
           <CoverView className='map-show-location-bg'>
@@ -183,14 +211,15 @@ class Index extends Component {
 
         </Map>
 
-        <AtModal isOpened={isLoginModalShow}>
+        {/* isLoginModalShow */}
+        {/* <AtModal isOpened={true}>
           <AtModalHeader>需要登录</AtModalHeader>
-          <AtModalContent>小程序需要获得你的公开信息(昵称、头像等)</AtModalContent>
+          <AtModalContent>小程序需要获得你的公开信息(昵称、头像)</AtModalContent>
           <AtModalAction>
             <Button>取消</Button>
-            <Button>快速登录</Button>
+            <Button openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' >快速登录</Button>
           </AtModalAction>
-        </AtModal>
+        </AtModal> */}
 
       </View>
     )
