@@ -99,10 +99,12 @@ class Index extends Component {
   // 自动登录
   autoLogin() {
     // 检查本地是否有LoginToken
-    // 有的话Entry
+    const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
+    // Taro.setStorageSync('key', 'value');
 
+    // 有的话Entry
     var self = this
-    // Taro.showLoading({ mask: true });
+    Taro.showLoading({ mask: true });
     Taro.login({
       success: function(loginRes) {
         console.log(loginRes.code)
@@ -126,6 +128,8 @@ class Index extends Component {
     Taro.showLoading({
       mask: true
     })
+    // 获取Pomelo实例
+    // 
   }
 
   // 创建行程订单
@@ -133,6 +137,9 @@ class Index extends Component {
     if (this.props.counter.userState.isLogin) {
       Taro.showLoading({ title: '创建行程', mask: true });
     }
+    // 查询是否有未完成行程
+    // 如果没有则创建行程
+    // 跳转到行程房主页面
   }
 
   // 获取用户信息
@@ -146,19 +153,13 @@ class Index extends Component {
         title: '登录中',
         mask: true
       })
-      
-      this.regist(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, (err) => {
-        Taro.hideLoading()
-        Taro.showToast({
-          title: '登录成功',
-          icon: 'success',
-          duration: 2000
-        })
-        // Taro.navigateBack()
-        Taro.reLaunch({
-          url: '/pages/index/index'
-        })
-      })
+      // e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl
+      // Taro.hideLoading()
+      //   Taro.showToast({
+      //     title: '登录成功',
+      //     icon: 'success',
+      //     duration: 2000
+      //   });
     }
   }
 
