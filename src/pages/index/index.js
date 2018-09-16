@@ -1,3 +1,5 @@
+// index改为落地页 根据url选择跳转页面,默认为首页,可达行程创建页、行程房间页
+
 import Taro, { Component } from '@tarojs/taro'
 import { View, Button, CoverView, CoverImage } from '@tarojs/components'
 import { AtButton, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui'
@@ -42,7 +44,9 @@ class Index extends Component {
   }
 
   componentDidMount() {
-    this.autoLogin()
+    // this.autoLogin()
+    // redirectTo('pages/login/login')
+    Taro.redirectTo('login')
   }
 
   componentWillReceiveProps (nextProps) {

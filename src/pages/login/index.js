@@ -6,6 +6,8 @@ import { add, minus, asyncAdd, login } from '../../actions/counter'
 
 import './index.scss'
 
+import pomelo from 'pomelo-weixin-client'
+
 @connect(({ counter }) => ({
   counter
 }), (dispatch) => ({
@@ -33,7 +35,11 @@ class Index extends Component {
     console.log(this.props, nextProps)
   }
    componentWillUnmount () { }
-   componentDidShow () { }
+   componentDidShow () {
+    pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
+      console.log(data);
+    });
+   }
    componentDidHide () { }
 
    // 获取用户信息
