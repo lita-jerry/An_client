@@ -3,7 +3,7 @@
 import pomelo from 'pomelo-weixin-client'
 
 export function get (callback) {
-  if (!pomelo.isReady) {
+  if (pomelo.isReady) {
     callback(pomelo);
   } else {
     _init(function(){
