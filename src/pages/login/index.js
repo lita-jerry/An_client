@@ -7,6 +7,7 @@ import { add, minus, asyncAdd, login } from '../../actions/counter'
 import './index.scss'
 
 import pomelo from 'pomelo-weixin-client'
+import { timeout } from '_rxjs@5.5.12@rxjs/operator/timeout';
 
 @connect(({ counter }) => ({
   counter
@@ -36,9 +37,18 @@ class Index extends Component {
   }
    componentWillUnmount () { }
    componentDidShow () {
-    pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
-      console.log(data);
+    console.log(pomelo);
+    pomelo.init({
+      host: 'jerrysir.com/',
+      port: 3010
+    }, function() {
+        console.log('pomelo first init success, heartbeatId=', pomelo.heartbeatId);
+        pomelo.isReady = true;
+        pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
+          console.log(data, pomelo.heartbeatId, pomelo);
+        });
     });
+    
    }
    componentDidHide () { }
 

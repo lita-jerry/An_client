@@ -7,7 +7,8 @@ import { connect } from '@tarojs/redux'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
 
-import pomelo from 'pomelo-weixin-client'
+// import pomelo from 'pomelo-weixin-client'
+import { get as getPomelo } from '../../global/pomelo'
 
 import './index.scss'
 
@@ -40,13 +41,15 @@ class Index extends Component {
     mapScale : '14',
     longitude: "113.324520",
     latitude: "23.099994",
-    isLoginModalShow: false
+    isLoginModalShow: false,
+    isFirst: true
   }
 
   componentDidMount() {
+    // console.log('还没初始化',pomelo);
     // this.autoLogin()
     // redirectTo('pages/login/login')
-    Taro.redirectTo('login')
+    // Taro.redirectTo('login')
   }
 
   componentWillReceiveProps (nextProps) {
@@ -58,6 +61,20 @@ class Index extends Component {
   componentDidShow () { 
     this.mapCtx = wx.createMapContext('map')
     this.showLocation()
+    // redirectTo('pages/login/index')
+    // if (this.state.isFirst) {
+    //   Taro.navigateTo({url: '/pages/login/index'})
+    // } else {
+    //   pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
+    //     console.log(data);
+    //   });
+    // }
+    // this.setState({isFirst:false})
+    getPomelo(function(_pomelo) {
+      _pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
+        console.log(data);
+      });
+    });
   }
 
   // 地图放大
