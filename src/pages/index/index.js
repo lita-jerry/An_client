@@ -4,11 +4,12 @@ import Taro, { Component } from '@tarojs/taro'
 import { View, Button, CoverView, CoverImage } from '@tarojs/components'
 import { AtButton, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui'
 import { connect } from '@tarojs/redux'
+import '@tarojs/async-await'
 
 import { add, minus, asyncAdd, login } from '../../actions/counter'
 
-// import pomelo from 'pomelo-weixin-client'
-import { get as getPomelo } from '../../global/pomelo'
+import pomelo from 'pomelo-weixin-client'
+import async from 'async'
 
 import './index.scss'
 
@@ -46,10 +47,11 @@ class Index extends Component {
   }
 
   componentDidMount() {
-    // console.log('还没初始化',pomelo);
-    // this.autoLogin()
-    // redirectTo('pages/login/login')
-    // Taro.redirectTo('login')
+    // redirectTo('pages/login/index')
+    var self = this;
+    this.initPomelo(function() {
+      self.autoLogin();
+    });
   }
 
   componentWillReceiveProps (nextProps) {
@@ -61,20 +63,6 @@ class Index extends Component {
   componentDidShow () { 
     this.mapCtx = wx.createMapContext('map')
     this.showLocation()
-    // redirectTo('pages/login/index')
-    // if (this.state.isFirst) {
-    //   Taro.navigateTo({url: '/pages/login/index'})
-    // } else {
-    //   pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
-    //     console.log(data);
-    //   });
-    // }
-    // this.setState({isFirst:false})
-    getPomelo(function(_pomelo) {
-      _pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: 'loginRes.code', nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
-        console.log(data);
-      });
-    });
   }
 
   // 地图放大
@@ -117,30 +105,104 @@ class Index extends Component {
     Taro.redirectTo({url:url})
   }
 
+  // 初始化Pomelo实例
+  initPomelo(callback) {
+    var self = this
+    Taro.showLoading({ title: '初始化...', mask: true });
+    if (!!pomelo.isReady) {
+      Taro.hideLoading();
+      callback();
+      return;
+    } else {
+      pomelo.init({
+        host: 'jerrysir.com/',
+        port: 3010
+      }, function() {
+        pomelo.isReady = true;
+        pomelo.isRunning = false;
+        console.log('pomelo init success.');
+        Taro.hideLoading();
+        callback();
+      });
+    }
+
+    // 设置响应
+    // io-error
+    // close
+    // disconnect
+    // onKick
+    // error
+    // heartbeat timeout
+    // reconnect
+
+    pomelo.on('io-error', function(err){
+      console.log('io-error', err);
+    });
+
+    pomelo.on('close', function(test){
+      console.log('close', test);
+    });
+
+    pomelo.on('disconnect', function(test){
+      console.log('disconnect', test);
+      pomelo.isReady = false;
+    });
+
+    pomelo.on('onKick', function(test){
+      console.log('onKick', test);
+    });
+
+    pomelo.on('error', function(test){
+      console.log('error', test);
+    });
+
+    pomelo.on('heartbeat timeout', function(){
+      console.log('heartbeat timeout');
+      Taro.showLoading({ title: '连接超时...', mask: true });
+    });
+
+    pomelo.on('reconnect', function(test){
+      console.log('reconnect', test);
+    });
+  }
+
   // 自动登录
   autoLogin() {
     // 检查本地是否有LoginToken
     const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
-    // Taro.setStorageSync('key', 'value');
+    if (!loginToken) {return}
 
-    // 有的话Entry
-    var self = this
-    Taro.showLoading({ mask: true });
-    Taro.login({
-      success: function(loginRes) {
-        console.log(loginRes.code)
-        if (loginRes.code) {
-          pomelo.init({
-            host: 'jerrysir.com/',
-            port: 3010
-          }, function() {
-              console.log('success');
-              pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: loginRes.code, nickName: '这个是小程序里面的昵称', avatarURL: '这个是小程序里面的头像url'}, function(data) {
-                console.log(data);
-              });
+    var self = this;
+    Taro.showLoading({ title: '恢复登录...', mask: true });
+    async.waterfall([
+      function(_cb) {
+        if (!pomelo.isReady) {
+          self.initPomelo(()=>{});
+          _cb('pomelo 未初始化');
+        } else {
+          pomelo.request("connector.entryHandler.entry", {token: loginToken}, function(data) {
+            console.log(data);
+            if (data['code'] !== 200) {
+              _cb('服务器错误');
+            } else if (data['error']) {
+              _cb(data['msg']);
+            } else {
+              _cb(null);
+            }
           });
         }
+    }],
+    function(_err, _token) {
+      Taro.hideLoading();
+      if (!!_err) {
+        Taro.removeStorageSync('LOGIN_TOKEN');
+        Taro.showToast({
+          title: '自动登录失败:'+_err,
+          icon: 'none',
+          duration: 2000
+        });
       }
+      
     });
   }
 
@@ -165,23 +227,65 @@ class Index extends Component {
 
   // 获取用户信息
   onGotUserInfo (e) {
-    console.log(e.detail.errMsg)
-    console.log(e.detail.userInfo)
-    console.log(e.detail)
-      
     if (e.detail.userInfo) {
-      Taro.showLoading({
-        title: '登录中',
-        mask: true
-      })
-      // e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl
-      // Taro.hideLoading()
-      //   Taro.showToast({
-      //     title: '登录成功',
-      //     icon: 'success',
-      //     duration: 2000
-      //   });
+      Taro.showLoading({ title: '登录中...', mask: true });
+      this.login(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, function(_err) {
+        Taro.hideLoading();
+        Taro.showToast({
+          title: !!_err ? '登录失败: '+_err : '登录成功',
+          icon: !!_err ? 'none' : 'success',
+          duration: 2000
+        });
+      });
     }
+  }
+
+  // 用户登录
+  login(nickName, avatarUrl, callback) {
+    var self = this;
+    async.waterfall([
+      function(_cb) {
+        Taro.login({
+          success: function(loginRes) {
+            console.log('wx.login code:', loginRes.code);
+            if (!!loginRes.code) {
+              _cb(null, loginRes.code);
+            } else {
+              _cb('code为空');
+            }
+          },
+          fail: function() {
+            _cb('微信端获取code失败');
+          }
+        });
+      },
+      function(_code, _cb) {
+        if (!pomelo.isReady) {
+          self.initPomelo(()=>{});
+          _cb('pomelo 未初始化');
+        } else {
+          pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: _code, nickName: nickName, avatarURL: avatarUrl}, function(data) {
+            console.log(data);
+            if (data['code'] !== 200) {
+              _cb('服务器错误');
+            } else if (!data['error']) {
+              _cb(null, data['data']['token']);
+            } else {
+              _cb(data['msg']);
+            }
+          });
+        }
+    }],
+    function(_err, _token) {
+      Taro.hideLoading();
+      
+      if (!!_err) {
+        callback(_err);
+      } else {
+        Taro.setStorageSync('LOGIN_TOKEN', _token);
+        callback();
+      }
+    });
   }
 
   componentDidHide () { }
