@@ -50,7 +50,7 @@ class Index extends Component {
   componentDidMount() {
     // redirectTo('pages/login/index')
     // 恢复业务
-    this.doRecovery();
+    this.doRecovery(()=>{});
   }
 
   componentWillReceiveProps (nextProps) {
@@ -65,7 +65,7 @@ class Index extends Component {
   }
 
   // 恢复业务
-  doRecovery() {
+  doRecovery(callback) {
     var self = this;
     async.waterfall([
       function(_cb) {
@@ -102,13 +102,14 @@ class Index extends Component {
           duration: 2000
         });
         setTimeout(() => {
-          self.doRecovery();
+          self.doRecovery(()=>{});
         }, 2000);
       } else {
         console.log('恢复业务成功');
         if (!!_orderNumber) {
           console.log('有未完成的行程订单: '+_orderNumber);
         }
+        callback();
       }
     });
   }
@@ -272,12 +273,21 @@ class Index extends Component {
 
   // 创建行程订单
   createTripOrder() {
-    if (this.props.counter.userState.isLogin) {
-      Taro.showLoading({ title: '创建行程', mask: true });
-    }
-    // 查询是否有未完成行程
-    // 如果没有则创建行程
-    // 跳转到行程房主页面
+    this.doRecovery(()=>{
+      Taro.showLoading({ title: '创建行程...', mask: true });
+      pomelo.request("trip.tripHandler.create", {}, function(data) {
+        console.log(data);
+        Taro.hideLoading();
+        if (data['code'] !== 200) {
+          Taro.showToast({ title: '服务器错误', icon: 'none', duration: 2000 });
+        } else if (!data['error']) {
+          var _orderNumber = data['data']['ordernumber'];
+          console.log('创建的行程订单: '+_orderNumber);
+        } else {
+          Taro.showToast({ title: data['msg'], icon: 'none', duration: 2000 });
+        }
+      });
+    });
   }
 
   // 获取用户信息
@@ -292,7 +302,7 @@ class Index extends Component {
           icon: !!_err ? 'none' : 'success',
           duration: 2000,
           complete: ()=> {
-            self.doRecovery();
+            self.doRecovery(()=>{});
           }
         });
         
