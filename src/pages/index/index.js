@@ -39,6 +39,7 @@ class Index extends Component {
   }
 
   state = {
+    isLogin: false,
     mapScale : '14',
     longitude: "113.324520",
     latitude: "23.099994",
@@ -48,10 +49,8 @@ class Index extends Component {
 
   componentDidMount() {
     // redirectTo('pages/login/index')
-    var self = this;
-    this.initPomelo(function() {
-      self.autoLogin();
-    });
+    // 恢复业务
+    this.doRecovery();
   }
 
   componentWillReceiveProps (nextProps) {
@@ -63,6 +62,55 @@ class Index extends Component {
   componentDidShow () { 
     this.mapCtx = wx.createMapContext('map')
     this.showLocation()
+  }
+
+  // 恢复业务
+  doRecovery() {
+    var self = this;
+    async.waterfall([
+      function(_cb) {
+        // 初始化pomelo
+        self.initPomelo(function() {
+          _cb();
+        });
+      },
+      function(_cb) {
+        // 自动登录
+        if (!!self.state.isLogin) {
+          _cb();
+        } else {
+          self.doAutoLogin(function(_err) {
+            _cb(_err);
+          });
+        }
+      },
+      function(_cb) {
+        // 查询是否有未完成行程
+        if (self.state.isLogin) {
+          self.checkUnfinishedTripOrder(function(_err, _orderNumber) {
+            _cb(_err, _orderNumber);
+          });
+        } else {
+          _cb(null);
+        }
+      }
+    ], function(_err, _orderNumber) {
+      if (!!_err) {
+        Taro.showToast({
+          title: ''+_err,
+          icon: 'none',
+          duration: 2000
+        });
+        setTimeout(() => {
+          self.doRecovery();
+        }, 2000);
+      } else {
+        console.log('恢复业务成功');
+        if (!!_orderNumber) {
+          console.log('有未完成的行程订单: '+_orderNumber);
+        }
+      }
+    });
   }
 
   // 地图放大
@@ -108,16 +156,17 @@ class Index extends Component {
   // 初始化Pomelo实例
   initPomelo(callback) {
     var self = this
-    Taro.showLoading({ title: '初始化...', mask: true });
+    
     if (!!pomelo.isReady) {
-      Taro.hideLoading();
       callback();
       return;
     } else {
+      Taro.showLoading({ title: '初始化...', mask: true });
       pomelo.init({
         host: 'jerrysir.com/',
         port: 3010
       }, function() {
+        Taro.hideLoading();
         pomelo.isReady = true;
         pomelo.isRunning = false;
         console.log('pomelo init success.');
@@ -146,6 +195,7 @@ class Index extends Component {
     pomelo.on('disconnect', function(test){
       console.log('disconnect', test);
       pomelo.isReady = false;
+      this.setState({isLogin: false});
     });
 
     pomelo.on('onKick', function(test){
@@ -167,52 +217,57 @@ class Index extends Component {
   }
 
   // 自动登录
-  autoLogin() {
+  doAutoLogin(callback) {
     // 检查本地是否有LoginToken
     const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
-    if (!loginToken) {return}
+    if (!loginToken) {
+      callback();
+      return;
+    }
 
     var self = this;
-    Taro.showLoading({ title: '恢复登录...', mask: true });
-    async.waterfall([
-      function(_cb) {
-        if (!pomelo.isReady) {
-          self.initPomelo(()=>{});
-          _cb('pomelo 未初始化');
+
+    if (!pomelo.isReady) {
+      _cb('pomelo 未初始化');
+    } else {
+      Taro.showLoading({ title: '恢复登录...', mask: true });
+      pomelo.request("connector.entryHandler.entry", {token: loginToken}, function(data) {
+        console.log(data);
+        Taro.hideLoading();
+        if (data['code'] !== 200) {
+          callback('服务器错误');
+        } else if (data['error']) {
+          Taro.removeStorageSync('LOGIN_TOKEN'); // 登录出错后需要将缓存的login token删除
+          callback(data['msg']);
         } else {
-          pomelo.request("connector.entryHandler.entry", {token: loginToken}, function(data) {
-            console.log(data);
-            if (data['code'] !== 200) {
-              _cb('服务器错误');
-            } else if (data['error']) {
-              _cb(data['msg']);
-            } else {
-              _cb(null);
-            }
+          self.setState({isLogin: true}, ()=> {
+            callback();
           });
         }
-    }],
-    function(_err, _token) {
-      Taro.hideLoading();
-      if (!!_err) {
-        Taro.removeStorageSync('LOGIN_TOKEN');
-        Taro.showToast({
-          title: '自动登录失败:'+_err,
-          icon: 'none',
-          duration: 2000
-        });
-      }
-      
-    });
+      });
+    }
   }
 
   // 检查未完成行程订单
-  checkUnfinishedTripOrder() {
-    Taro.showLoading({
-      mask: true
-    })
-    // 获取Pomelo实例
-    // 
+  checkUnfinishedTripOrder(callback) {
+    Taro.showLoading({ title: '正在检查未完成行程', mask: true });
+
+    var self = this;
+    if (!pomelo.isReady) {
+      callback('pomelo 未初始化');
+    } else {
+      pomelo.request("trip.tripHandler.queryUnfinished", {}, function(data) {
+        Taro.hideLoading();
+        console.log(data);
+        if (data['code'] !== 200) {
+          callback('服务器错误');
+        } else if (data['error']) {
+          callback(data['msg']);
+        } else {
+          callback(null, data['data']['ordernumber']);
+        }
+      });
+    }
   }
 
   // 创建行程订单
@@ -229,19 +284,24 @@ class Index extends Component {
   onGotUserInfo (e) {
     if (e.detail.userInfo) {
       Taro.showLoading({ title: '登录中...', mask: true });
-      this.login(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, function(_err) {
+      var self = this;
+      this.doLogin(e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, function(_err) {
         Taro.hideLoading();
         Taro.showToast({
           title: !!_err ? '登录失败: '+_err : '登录成功',
           icon: !!_err ? 'none' : 'success',
-          duration: 2000
+          duration: 2000,
+          complete: ()=> {
+            self.doRecovery();
+          }
         });
+        
       });
     }
   }
 
   // 用户登录
-  login(nickName, avatarUrl, callback) {
+  doLogin(nickName, avatarUrl, callback) {
     var self = this;
     async.waterfall([
       function(_cb) {
@@ -261,7 +321,6 @@ class Index extends Component {
       },
       function(_code, _cb) {
         if (!pomelo.isReady) {
-          self.initPomelo(()=>{});
           _cb('pomelo 未初始化');
         } else {
           pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: _code, nickName: nickName, avatarURL: avatarUrl}, function(data) {
@@ -283,7 +342,9 @@ class Index extends Component {
         callback(_err);
       } else {
         Taro.setStorageSync('LOGIN_TOKEN', _token);
-        callback();
+        self.setState({isLogin: true}, () => {
+          callback();
+        });
       }
     });
   }
@@ -312,7 +373,7 @@ class Index extends Component {
                 <CoverImage src={follow_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的关注</CoverView>
                 {
-                  !this.props.counter.userState.isLogin 
+                  !this.state.isLogin
                   && <Button className='map-tool-left-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
                 }
               </CoverView>
@@ -321,7 +382,7 @@ class Index extends Component {
                 <CoverImage src={my_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的</CoverView>
                 {
-                  !this.props.counter.userState.isLogin 
+                  !this.state.isLogin
                   && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
                 }
               </CoverView>
@@ -331,7 +392,7 @@ class Index extends Component {
             <CoverView class='start-bg' >
               <CoverImage className='start-icon' src={trip_icon} onClick={this.createTripOrder} />
               {
-                !this.props.counter.userState.isLogin 
+                !this.state.isLogin
                 && <Button className='start-icon-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
               }
             </CoverView>
