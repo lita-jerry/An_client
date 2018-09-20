@@ -1,15 +1,30 @@
-// 全局变量 pomelo实例
+// PomeloClient
 
 import pomelo from 'pomelo-weixin-client'
 
-export function get (callback) {
+export function init (callback) {
+
   if (pomelo.isReady) {
-    callback(pomelo);
-  } else {
-    _init(function(){
-      callback(pomelo);
-    })
+    callback(null);
+    return;
   }
+
+  // 配置状态变量
+  pomelo.isReady = false;
+  pomelo.isLogin = false;
+
+  // 配置事件通知响应变量
+  pomelo.ioErrorHandler = ()=>{};
+  pomelo.closeHandler = ()=>{};
+  pomelo.disconnectHandler = ()=>{};
+  pomelo.onKick = ()=>{};
+  pomelo.error = ()=>{};
+  pomelo.heartbeatTimeoutHandler = ()=>{};
+  pomelo.reconnectHandler = ()=>{};
+
+  // 初始化
+  _init(callback);
+
 }
 
 function _init (callback) {
@@ -18,7 +33,7 @@ function _init (callback) {
     port: 3010
   }, function() {
       console.log('pomelo init success.');
-      callback();
+      callback(null);
   });
 
   // io-error

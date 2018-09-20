@@ -33,6 +33,14 @@ class App extends Component {
 
   componentCatchError () {}
 
+  // 配置pomelo
+  configPomelo () {
+    // 初始化方法
+    // 微信小程序登录方法
+    // 已有用户恢复登录
+    // 查询未完成
+  }
+
   render () {
     return (
       <Provider store={store}>
