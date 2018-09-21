@@ -1,6 +1,7 @@
 // PomeloClient
 
 import pomelo from 'pomelo-weixin-client'
+import async  from 'async'
 
 export function init (callback) {
 
@@ -12,6 +13,7 @@ export function init (callback) {
   // 配置状态变量
   pomelo.isReady = false;
   pomelo.isLogin = false;
+  pomelo.isInTripRoom = false;
 
   // 配置事件通知响应变量(Pomelo本身)
   pomelo.ioErrorHandler = ()=>{};
@@ -26,7 +28,6 @@ export function init (callback) {
   // 用户进入行程房间
   // 用户离开行程房间
   // 求救
-  
 
   // 配置通知事件
   pomelo.on('io-error', function(test){
@@ -77,41 +78,421 @@ export function init (callback) {
 
 }
 
-// 已登录用户恢复登录态
-export function entry (loginToken, callback) {}
+/**
+ * 已登录用户恢复登录态
+ * 
+ * @param {String} loginToken 登录token
+ * @param {Function}} callback err
+ */
+export function entry (loginToken, callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      pomelo.request("connector.entryHandler.entry", {token: loginToken}, function(_data) {
+        console.log('connector.entryHandler.entry', loginToken, data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      if (!_err) {
+        pomelo.isLogin = true;
+      }
+      callback(_err);
+  });
+}
 
-// 微信小程序登录
-export function loginByWeapp (code, nickName, avatarUrl, callback) {}
+/**
+ * 微信小程序登录
+ * 
+ * @param {String} code 小程序登录code
+ * @param {String} nickName 昵称
+ * @param {String} avatarUrl 头像url
+ * @param {Function} callback err, token
+ */
+export function loginByWeapp (code, nickName, avatarUrl, callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: code, nickName: nickName, avatarURL: avatarUrl}, function(_data) {
+        console.log('connector.entryHandler.loginByOtherPlatform', code, nickName, avatarUrl, data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb(null, _data['data']['token']);
+        }
+      });
+    }],
+    function(_err, _token) {
+      if (!_err) {
+        pomelo.isLogin = true;
+      }
+      callback(_err, _token);
+  });
+}
 
-// 创建行程
-export function createTrip (callback) {}
+/**
+ * 创建行程
+ * 
+ * @param {Function} callback err, ordernumber
+ */
+export function createTrip (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.create", {}, function(_data) {
+        console.log('trip.tripHandler.create', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          var _orderNumber = _data['data']['ordernumber'];
+          _cb(null, _orderNumber);
+        }
+      });
+    }],
+    function(_err, _orderNumber) {
+      callback(_err, _orderNumber);
+  });
+}
 
-// 结束行程
-export function endTrip (callback) {}
+/**
+ * 结束行程
+ * 
+ * @param {Function} callback err
+ */
+export function endTrip (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
+    },
+    function(_cb) {
+      pomelo.request("connector.entryHandler.entryTripRoom", {}, function(_data) {
+        console.log('connector.entryHandler.entryTripRoom', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb(null);
+        }
+      });
+    }],
+    function(_err) {
+      if (!_err) {
+        pomelo.isInTripRoom = false;
+      }
+      callback(_err);
+  });
+}
 
-// 查询未完成的行程订单
-export function queryUnfinished (callback) {}
+/**
+ * 获取未完成的行程订单
+ * 
+ * @param {Function} callback err, ordernumber
+ */
+export function queryUnfinished (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.queryUnfinished", {}, function(_data) {
+        console.log('trip.tripHandler.queryUnfinished', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb(null, _data['data']['ordernumber']);
+        }
+      });
+    }],
+    function(_err, _orderNumber) {
+      callback(_err, _orderNumber);
+  });
+}
 
 // 进入行程房间
-export function entryTripRoom (callback) {}
+export function entryTripRoom (ordernumber, callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("connector.entryHandler.entryTripRoom", {ordernumber: ordernumber}, function(_data) {
+        console.log('connector.entryHandler.entryTripRoom', ordernumber, _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      if (!_err) {
+        pomelo.isInTripRoom = true;
+      }
+      callback(_err);
+  });
+}
 
 // 离开行程房间
-export function leaveTripRoom (callback) {}
+export function leaveTripRoom (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("connector.entryHandler.leaveTripRoom", {}, function(_data) {
+        console.log('connector.entryHandler.leaveTripRoom', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      if (!_err) {
+        pomelo.isInTripRoom = false;
+      }
+      callback(_err);
+  });
+}
 
 // 更新行程位置
-export function uploadLocation (callback) {}
+export function uploadLocation (longitude, latitude, callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.uploadLocation", {longitude: longitude, latitude: latitude}, function(_data) {
+        console.log('trip.tripHandler.uploadLocation', longitude, latitude, _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      callback(_err);
+  });
+}
 
 // 行程发出求救
-export function tripSOS (callback) {}
+export function tripSOS (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.SOS", {}, function(_data) {
+        console.log('trip.tripHandler.SOS', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      callback(_err);
+  });
+}
 
-// 获取行程信息
-export function getTripInfo (callback) {}
+/**
+ * 获取行程信息
+ * 
+ * @param {Function} callback err, info{uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs}
+ */
+export function getTripInfo (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.getInfo", {}, function(_data) {
+        console.log('trip.tripHandler.getInfo', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb(null, _data['data']);
+        }
+      });
+    }],
+    function(_err, _info) {
+      callback(_err, _info);
+  });
+}
 
-// 获取行程房间内的用户信息
-export function getUserInfoInTripRoom (callback) {}
+/**
+ * 获取行程房间内的用户信息
+ * 
+ * @param {Function} callback err, users[{nickName, avatar}]
+ */
+export function getUserInfoInTripRoom (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.getUserInfoInTripRoom", {}, function(_data) {
+        console.log('trip.tripHandler.getUserInfoInTripRoom', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb(null, _data['data']);
+        }
+      });
+    }],
+    function(_err, _users) {
+      callback(_err, _users);
+  });
+}
 
 // 关注(人)
-export function follow (callback) {}
+export function follow (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.follow", {}, function(_data) {
+        console.log('trip.tripHandler.follow', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      callback(_err);
+  });
+}
 
 // 取消关注(人)
-export function unfollow (callback) {}
+export function unfollow (callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.unfollow", {}, function(_data) {
+        console.log('trip.tripHandler.unfollow', _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb();
+        }
+      });
+    }],
+    function(_err) {
+      callback(_err);
+  });
+}
