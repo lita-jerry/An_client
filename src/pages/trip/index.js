@@ -38,10 +38,15 @@ export default class Index extends Component {
   componentDidHide () { }
 
   /*    自定义函数    */
+
   // 自动登录
   doAutoLogin () {
+    if (!!pomelo.isLogin) {
+      this.setState({isLogin: true});
+      this.doRecoveryTrip();
+      return;
+    }
     // 检查本地是否有LoginToken
-    Taro.setStorageSync('LOGIN_TOKEN', '85549348c3312fbc23a512d108f4dbde');
     const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
     if (!loginToken) { return }
 
@@ -54,19 +59,76 @@ export default class Index extends Component {
           Taro.reLaunch({url: '/pages/index/index'})
         })
       } else {
+        self.setState({isLogin: true});
         Taro.hideLoading();
+        self.doRecoveryTrip();
+      }
+    });
+  }
+
+  // 恢复行程
+  doRecoveryTrip () {
+    Taro.showLoading({ title: '查询可恢复行程', mask: true });
+    pomelo.queryUnfinished(function(err, ordernumber) {
+      if (!!err) {
+        pomelo.reInit(function() {
+          Taro.reLaunch({url: '/pages/index/index'})
+        })
+      } else {
+        Taro.hideLoading();
+        if (!!ordernumber) {
+          console.log('有可恢复行程', ordernumber);
+          // 改变当前状态
+        }
       }
     });
   }
 
   // 获取用户信息
   onGotUserInfo (e) {
-    // 这里做成异步处理流
-    if (e.detail.userInfo) {
-      Taro.showLoading({ title: '登录中...', mask: true });
-      var self = this;
-      // e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl
-    }
+    Taro.showLoading({ title: '登录中...', mask: true });
+    // 这里做成异步流
+    var self = this;
+    async.waterfall([
+      function(_cb) {
+        if (e.detail.userInfo) {
+          // 
+          _cb(null, e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl);
+        } else {
+          _cb('获取用户信息错误');
+        }
+      },
+      function(_nickName, _avatarUrl, _cb) {
+        Taro.login({
+          success: function(res) {
+            console.log('wx.login code:', res.code);
+            if (!!res.code) {
+              _cb(null, _nickName, _avatarUrl, res.code);
+            } else {
+              _cb('code为空');
+            }
+          },
+          fail: function() {
+            _cb('微信端获取code失败');
+          }
+        });
+      },
+      function(_nickName, _avatarUrl, _code, _cb) {
+        pomelo.loginByWeapp(_code, _nickName, _avatarUrl, function(_err, _token) {
+          _cb(_err, _token);
+        });
+      }],
+      function(_err, _token) {
+        if (!!_err) {
+          pomelo.reInit(function() {
+            Taro.reLaunch({url: '/pages/index/index'})
+          })
+        } else {
+          Taro.hideLoading();
+          self.doRecoveryTrip();
+        }
+    })
+    
   }
 
   render () {
@@ -91,7 +153,7 @@ export default class Index extends Component {
                 <CoverImage src={follow_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的关注</CoverView>
                 {
-                  !pomelo.isLogin
+                  !this.state.isLogin
                   && <Button className='map-tool-left-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
                 }
               </CoverView>
@@ -100,7 +162,7 @@ export default class Index extends Component {
                 <CoverImage src={my_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的</CoverView>
                 {
-                  !pomelo.isLogin
+                  !this.state.isLogin
                   && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
                 }
               </CoverView>

@@ -504,7 +504,7 @@ pomelo.unfollow =  function unfollow (callback) {
 }
 
 pomelo.reInit = (callback) => {
-  this.init(callback);
+  init(callback);
 }
 
 console.log('引入外部类执行')
