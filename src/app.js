@@ -1,28 +1,24 @@
 import Taro, { Component } from '@tarojs/taro'
-import '@tarojs/async-await'
-import { Provider } from '@tarojs/redux'
-
 import Index from './pages/index'
-
-import configStore from './store'
 
 import './app.scss'
 
-const store = configStore()
+// Pomelo扩展
+import './PomeloManager'
 
 class App extends Component {
+
   config = {
     pages: [
       'pages/index/index',
-      'pages/login/index',
+      'pages/trip/index'
     ],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
-    },
-    functionalPages: true
+    }
   }
 
   componentDidMount () {}
@@ -33,19 +29,9 @@ class App extends Component {
 
   componentCatchError () {}
 
-  // 配置pomelo
-  configPomelo () {
-    // 初始化方法
-    // 微信小程序登录方法
-    // 已有用户恢复登录
-    // 查询未完成
-  }
-
   render () {
     return (
-      <Provider store={store}>
-        <Index />
-      </Provider>
+      <Index />
     )
   }
 }

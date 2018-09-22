@@ -1,7 +1,13 @@
-// PomeloClient
+// Pomelo 扩展
 
 import pomelo from 'pomelo-weixin-client'
 import async  from 'async'
+
+// const PemeloGlobalVariable = pomelo;
+
+// export function get () {
+//   return PemeloGlobalVariable;
+// }
 
 export function init (callback) {
 
@@ -84,7 +90,7 @@ export function init (callback) {
  * @param {String} loginToken 登录token
  * @param {Function}} callback err
  */
-export function entry (loginToken, callback) {
+pomelo.entry = function entry (loginToken, callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -92,7 +98,7 @@ export function entry (loginToken, callback) {
     },
     function(_cb) {
       pomelo.request("connector.entryHandler.entry", {token: loginToken}, function(_data) {
-        console.log('connector.entryHandler.entry', loginToken, data);
+        console.log('connector.entryHandler.entry', loginToken, _data);
         if (_data['code'] !== 200) {
           _cb('服务器错误');
         } else if (!!_data['error']) {
@@ -118,7 +124,7 @@ export function entry (loginToken, callback) {
  * @param {String} avatarUrl 头像url
  * @param {Function} callback err, token
  */
-export function loginByWeapp (code, nickName, avatarUrl, callback) {
+pomelo.loginByWeapp =  function loginByWeapp (code, nickName, avatarUrl, callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -126,7 +132,7 @@ export function loginByWeapp (code, nickName, avatarUrl, callback) {
     },
     function(_cb) {
       pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: code, nickName: nickName, avatarURL: avatarUrl}, function(_data) {
-        console.log('connector.entryHandler.loginByOtherPlatform', code, nickName, avatarUrl, data);
+        console.log('connector.entryHandler.loginByOtherPlatform', code, nickName, avatarUrl, _data);
         if (_data['code'] !== 200) {
           _cb('服务器错误');
         } else if (!!_data['error']) {
@@ -149,7 +155,7 @@ export function loginByWeapp (code, nickName, avatarUrl, callback) {
  * 
  * @param {Function} callback err, ordernumber
  */
-export function createTrip (callback) {
+pomelo.createTrip =  function createTrip (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -182,7 +188,7 @@ export function createTrip (callback) {
  * 
  * @param {Function} callback err
  */
-export function endTrip (callback) {
+pomelo.endTrip =  function endTrip (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -220,7 +226,7 @@ export function endTrip (callback) {
  * 
  * @param {Function} callback err, ordernumber
  */
-export function queryUnfinished (callback) {
+pomelo.queryUnfinished =  function queryUnfinished (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -248,7 +254,7 @@ export function queryUnfinished (callback) {
 }
 
 // 进入行程房间
-export function entryTripRoom (ordernumber, callback) {
+pomelo.entryTripRoom =  function entryTripRoom (ordernumber, callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -279,7 +285,7 @@ export function entryTripRoom (ordernumber, callback) {
 }
 
 // 离开行程房间
-export function leaveTripRoom (callback) {
+pomelo.leaveTripRoom =  function leaveTripRoom (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -310,7 +316,7 @@ export function leaveTripRoom (callback) {
 }
 
 // 更新行程位置
-export function uploadLocation (longitude, latitude, callback) {
+pomelo.uploadLocation =  function uploadLocation (longitude, latitude, callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -341,7 +347,7 @@ export function uploadLocation (longitude, latitude, callback) {
 }
 
 // 行程发出求救
-export function tripSOS (callback) {
+pomelo.tripSOS =  function tripSOS (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -376,7 +382,7 @@ export function tripSOS (callback) {
  * 
  * @param {Function} callback err, info{uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs}
  */
-export function getTripInfo (callback) {
+pomelo.getTripInfo =  function getTripInfo (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -411,7 +417,7 @@ export function getTripInfo (callback) {
  * 
  * @param {Function} callback err, users[{nickName, avatar}]
  */
-export function getUserInfoInTripRoom (callback) {
+pomelo.getUserInfoInTripRoom =  function getUserInfoInTripRoom (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -442,7 +448,7 @@ export function getUserInfoInTripRoom (callback) {
 }
 
 // 关注(人)
-export function follow (callback) {
+pomelo.follow =  function follow (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -470,7 +476,7 @@ export function follow (callback) {
 }
 
 // 取消关注(人)
-export function unfollow (callback) {
+pomelo.unfollow =  function unfollow (callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -496,3 +502,10 @@ export function unfollow (callback) {
       callback(_err);
   });
 }
+
+pomelo.reInit = (callback) => {
+  this.init(callback);
+}
+
+console.log('引入外部类执行')
+init(()=>{});
