@@ -18,11 +18,9 @@ export default class Index extends Component {
 
   state = {
     isLogin: false,
-    mapScale : '14',
+    mapScale : 14,
     longitude: "113.324520",
-    latitude: "23.099994",
-    isLoginModalShow: false,
-    isFirst: true
+    latitude: "23.099994"
   }
 
   componentWillMount () { }
@@ -33,6 +31,11 @@ export default class Index extends Component {
 
   componentDidShow () {
     this.doAutoLogin();
+    this.mapCtx = wx.createMapContext('myMap')
+    var self = this;
+    setInterval(()=>{
+      self.showLocation();
+    }, 3000);
   }
 
   componentDidHide () { }
@@ -86,13 +89,18 @@ export default class Index extends Component {
 
   // 获取用户信息
   onGotUserInfo (e) {
+    if (!!pomelo.isLogin) {
+      this.setState({isLogin: true});
+      this.doRecoveryTrip();
+      return;
+    }
+    
     Taro.showLoading({ title: '登录中...', mask: true });
     // 这里做成异步流
     var self = this;
     async.waterfall([
       function(_cb) {
         if (e.detail.userInfo) {
-          // 
           _cb(null, e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl);
         } else {
           _cb('获取用户信息错误');
@@ -124,26 +132,61 @@ export default class Index extends Component {
             Taro.reLaunch({url: '/pages/index/index'})
           })
         } else {
+          Taro.setStorageSync('LOGIN_TOKEN', _token);
+          self.setState({isLogin: true});
           Taro.hideLoading();
           self.doRecoveryTrip();
         }
     })
-    
+  }
+
+  // 地图放大
+  mapScale_enlargement() {
+    if (this.state.mapScale < 20) {
+      this.setState({mapScale:(this.state.mapScale + 1)})
+    }
+  }
+  // 地图缩小
+  mapScale_reduction() {
+    if (this.state.mapScale > 5) {
+      this.setState({mapScale:(this.state.mapScale - 1)})
+    }
+  }
+  // 地图上显示当前位置
+  showLocation() {
+    var self = this
+    wx.getLocation({
+      type: 'gcj02', //返回可以用于wx.openLocation的经纬度
+      success: function(res) {
+        var _latitude = res.latitude
+        var _longitude = res.longitude
+        console.log(_latitude, _longitude)
+        self.setState({
+          longitude:_longitude + "", 
+          latitude:_latitude + ""
+        })
+        self.mapCtx.moveToLocation()
+      }
+    })
+    this.mapCtx.moveToLocation()
+    // console.log(this.state.longitude, this.state.latitude)
+    // 上传位置
   }
 
   render () {
     return (
       <View className='index'>
 
-        <Map className="map"
+        <Map id="myMap"
+             className="map"
              longitude={this.state.longitude} latitude={this.state.latitude}
-             scale={this.state.mapScale}
+             scale={this.state.mapScale+''}
              show-location>
 
-          <CoverView class='map-zoom-bg'>
+          {/* <CoverView class='map-zoom-bg'>
             <Button className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</Button>
             <Button className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</Button>
-          </CoverView>
+          </CoverView> */}
           
           <CoverView class='map-tool-bar-bg'>
 
