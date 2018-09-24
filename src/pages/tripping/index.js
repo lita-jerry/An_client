@@ -1,5 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
+import { AtCard } from "taro-ui"
 import './index.scss'
 
 import follow_icon from './images/follow.png'
@@ -13,7 +14,7 @@ import pomelo from 'pomelo-weixin-client'
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: '平安到家'
+    navigationBarTitleText: '我的行程'
   }
 
   state = {
@@ -29,14 +30,7 @@ export default class Index extends Component {
 
   componentWillUnmount () { }
 
-  componentDidShow () {
-    this.doAutoLogin();
-    this.mapCtx = wx.createMapContext('myMap')
-    var self = this;
-    setInterval(()=>{
-      self.showLocation();
-    }, 3000);
-  }
+  componentDidShow () { }
 
   componentDidHide () { }
 
@@ -183,16 +177,31 @@ export default class Index extends Component {
     return (
       <View className='index'>
 
+        {/* <View className="info-bg">
+          <Text>行驶中</Text>
+          <Text>2018年09月24日23:02:11 开始</Text>
+          <Text>20 分钟</Text>
+          <Text>行驶时间</Text>
+          <Text>20 km</Text>
+          <Text>已行驶距离</Text>
+          <Text>10 km/h</Text>
+          <Text>行驶速度</Text>
+        </View> */}
+        <AtCard
+        className="info-bg"
+        title='行驶中'
+        extra='2018年09月24日23:24:28'
+        isFull='true'
+        thumb='http://www.logoquan.com/upload/list/20180421/logoquan15259400209.PNG'>
+          <Text>20 分钟</Text>
+          <Text>行驶时间</Text>
+        </AtCard>
+
         <Map id="myMap"
              className="map"
              longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale+''}
              show-location>
-
-          {/* <CoverView class='map-zoom-bg'>
-            <Button className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</Button>
-            <Button className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</Button>
-          </CoverView> */}
           
           <CoverView class='map-tool-bar-bg'>
 

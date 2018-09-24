@@ -1,0 +1,131 @@
+
+.info-bg{
+  width:100vw; height:20vh;
+  background-color: white;
+}
+
+.map{
+  left:0; top:0; 
+  width:100vw; height:80vh;
+}
+
+.map-zoom-bg{
+  position:fixed; 
+  top:45vh; right:10PX; 
+  z-index:99; 
+  width:44PX; height:99PX;
+}
+
+.map-zoom-enlargement{
+  position:absolute; 
+  left:0; top:0; right:0; bottom:49%; margin:auto;
+  width:44PX; height:44PX; 
+}
+
+.map-zoom-reduction{
+  position:absolute; 
+  left:0; top:51%; right:0; bottom:0; margin:auto;
+  width:44PX; height:44PX; 
+}
+
+.map-tool-bar-bg{
+  position:fixed; 
+  left:0; right:0; 
+  margin:auto; 
+  bottom:25PX; 
+  z-index:99; 
+  width:80vw; height:70PX;
+}
+
+.map-tool-box-bg{
+  width:79vw; height:60PX; 
+  margin:3PX 0; 
+  border:1PX solid #ddd; 
+  border-radius:50PX; 
+  
+  background-color:white;
+}
+
+.map-tool-left-box{
+  position:absolute; 
+  left:0; top:0; right:55%; bottom:0; margin:auto; 
+  width:60PX; height:60PX; 
+}
+
+.map-tool-left-box-unlogin{
+  position:absolute; 
+  left:0; top:0; right:55%; bottom:0; margin:auto; 
+  width:60PX; height:60PX; 
+  opacity: 0;
+}
+
+.map-tool-right-box{
+  position:absolute; 
+  left:55%; top:0; right:0; bottom:0; margin:auto; 
+  width:60PX; height:60PX; 
+}
+
+.map-tool-right-box-unlogin{
+  position:absolute; 
+  left:55%; top:0; right:0; bottom:0; margin:auto; 
+  width:60PX; height:60PX; 
+  opacity: 0;
+}
+
+.map-tool-box-image{
+  left:0; top:0; right:0; bottom:0; margin:auto; 
+  width:60%; height:60%;
+}
+
+.map-tool-box-text{
+  left:0; top:0; right:0; bottom:10%; margin:auto; 
+  width:100%; height:30%; 
+  font-size:70%; 
+  text-align:center;
+}
+
+.start-bg{
+  position:absolute; 
+  left:0; top:0; right:0; bottom:0; margin:auto; 
+  width:66PX; height:66PX; 
+  border:1PX solid #1C9A13; 
+  border-radius:33PX; 
+  
+  background-color:#20AC15;
+}
+
+.start-icon{
+  position:absolute; 
+  left:0; top:0; right:0; bottom:0; margin:13PX auto; 
+  width:55%; height:55%; 
+}
+
+.start-icon-unlogin{
+  position:absolute; 
+  left:0; top:0; right:0; bottom:0; margin:auto; 
+  width:66PX; height:66PX; 
+  border-radius:33PX; 
+  // background: transparent;
+  opacity: 0;
+}
+
+.start-btn{
+  position:absolute; 
+  left:-5%; top:-5%; right:-5%; bottom:-5%; margin:auto; 
+  width:110%; height:110%; 
+  z-index:99; 
+  background-color:yellow;
+}
+
+
+.map-show-location-bg{
+  position:fixed; 
+  bottom:122PX; left:10PX; 
+  z-index:99; 
+  width:44PX; height:44PX;
+}
+.map-show-location-btn{
+  position:absolute; 
+  left:0; top:0; right:0; bottom:0; margin:auto; 
+  width:99%; height:99%;
+}
