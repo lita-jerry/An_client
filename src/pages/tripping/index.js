@@ -3,9 +3,10 @@ import { View, Text } from '@tarojs/components'
 import { AtCard, AtButton } from "taro-ui"
 import './index.scss'
 
-import follow_icon from './images/follow.png'
-import my_icon from './images/my.png'
+import icon_spin_s from './images/icon-spin-s.png'
+import sos_icon from './images/sos.png'
 import trip_icon from './images/trip.png'
+import security_icon from './images/security.png'
 
 import async from 'async'
 import pomelo from 'pomelo-weixin-client'
@@ -176,23 +177,12 @@ export default class Index extends Component {
   render () {
     return (
       <View className='index'>
-
-        {/* <View className="info-bg">
-          <Text>行驶中</Text>
-          <Text>2018年09月24日23:02:11 开始</Text>
-          <Text>20 分钟</Text>
-          <Text>行驶时间</Text>
-          <Text>20 km</Text>
-          <Text>已行驶距离</Text>
-          <Text>10 km/h</Text>
-          <Text>行驶速度</Text>
-        </View> */}
         <AtCard
         className="info-bg"
         title='行驶中'
         extra='9月24日23:24'
         isFull={true}
-        thumb='http://www.logoquan.com/upload/list/20180421/logoquan15259400209.PNG'>
+        thumb={security_icon}>
           <div style='display:flex; flex-direction:column; left:0; right:0; height:19vh; align-items:center;'>
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:9vh;'>
 
@@ -235,51 +225,24 @@ export default class Index extends Component {
           </div>
         </AtCard>
 
-        <Map id="myMap"
-             className="map"
+        <map id="myMap"
+             style='display:flex; left:0; top:0; width:100vw; height:71vh;'
              longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale+''}
              show-location>
-          
-          <CoverView class='map-tool-bar-bg'>
-
-            <CoverView class='map-tool-box-bg'>
-
-              <CoverView className='map-tool-left-box'>
-                <CoverImage src={follow_icon} class='map-tool-box-image' />
-                <CoverView class='map-tool-box-text'>我的关注</CoverView>
-                {
-                  !this.state.isLogin
-                  && <Button className='map-tool-left-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-                }
-              </CoverView>
-              
-              <CoverView className='map-tool-right-box'>
-                <CoverImage src={my_icon} class='map-tool-box-image' />
-                <CoverView class='map-tool-box-text'>我的</CoverView>
-                {
-                  !this.state.isLogin
-                  && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-                }
-              </CoverView>
-              
+ 
+          <CoverView style='position:flex; position:absolute; bottom:25PX; width:100vw; height:90PX;'>
+            {/* <view style='position: absolute; z-index:199; left:0; top:0; width: 74PX; height: 74PX; background: url(images/icon-spin-s.png) no-repeat; animation: spin 800ms infinite linear;'></CoverView> */}
+            <CoverView style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66PX; height:66PX; background-color:white; border:2PX solid #DC143C; border-radius:33PX; box-shadow: 0 0 15PX #4E4E4E;' >
+                <CoverImage style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66%; height:66%;' src={sos_icon} onClick={this.createTripOrder} />
             </CoverView>
-
-            <CoverView class='start-bg' >
-              <CoverImage className='start-icon' src={trip_icon} onClick={this.createTripOrder} />
-              {
-                !this.state.isLogin
-                && <Button className='start-icon-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-              }
-            </CoverView>
-
           </CoverView>
 
-          <CoverView className='map-show-location-bg'>
-            <Button className='map-show-location-btn' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</Button>
+          <CoverView style='position:fixed; bottom:122PX; left:10PX; z-index:99; width:44PX; height:44PX;'>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
 
-        </Map>
+        </map>
 
       </View>
     )
