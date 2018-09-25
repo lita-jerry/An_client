@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-import { AtCard } from "taro-ui"
+import { AtCard, AtButton } from "taro-ui"
 import './index.scss'
 
 import follow_icon from './images/follow.png'
@@ -190,11 +190,49 @@ export default class Index extends Component {
         <AtCard
         className="info-bg"
         title='行驶中'
-        extra='2018年09月24日23:24:28'
-        isFull='true'
+        extra='9月24日23:24'
+        isFull={true}
         thumb='http://www.logoquan.com/upload/list/20180421/logoquan15259400209.PNG'>
-          <Text>20 分钟</Text>
-          <Text>行驶时间</Text>
+          <div style='display:flex; flex-direction:column; left:0; right:0; height:19vh; align-items:center;'>
+            <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:9vh;'>
+
+              <div style='width:10vh; height:10vh;'>
+                <div style='display:flex; flex-direction:row; align-items:center; justify-content:center;'>
+                  <text style='font-size:150%; text-align:center; color:#53505F'>20</text>
+                  <text style='font-size:90%; text-align:center; color:#535257'>分钟</text>
+                </div>
+                <div style='display:flex; justify-content:center;'>
+                  <text style='color:#878787'>行驶时间</text>
+                </div>
+              </div>
+
+              <div style='width:10vh; height:10vh;'>
+                <div style='display:flex; flex-direction:row; align-items:center; justify-content:center;'>
+                  <text style='font-size:150%; text-align:center; color:#53505F'>20</text>
+                  <text style='font-size:90%; text-align:center; color:#535257'>km</text>
+                </div>
+                <div style='display:flex; justify-content:center;'>
+                  <text style='color:#878787'>行驶距离</text>
+                </div>
+              </div>
+
+              <div style='width:10vh; height:10vh;'>
+                <div style='display:flex; flex-direction:row; align-items:center; justify-content:center;'>
+                  <text style='font-size:150%; text-align:center; color:#53505F'>20</text>
+                  <text style='font-size:90%; text-align:center; color:#535257'>km/h</text>
+                </div>
+                <div style='display:flex; justify-content:center;'>
+                  <text style='color:#878787'>行驶速度</text>
+                </div>
+              </div>
+            </div>
+
+            <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
+              <AtButton type='primary' size='normal' style='width:50vw;'>结束行程</AtButton>
+              <AtButton type='secondary'>分享</AtButton>
+            </div>
+
+          </div>
         </AtCard>
 
         <Map id="myMap"
