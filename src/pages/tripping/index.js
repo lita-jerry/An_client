@@ -37,118 +37,8 @@ export default class Index extends Component {
 
   /*    自定义函数    */
 
-  // 自动登录
-  doAutoLogin () {
-    if (!!pomelo.isLogin) {
-      this.setState({isLogin: true});
-      this.doRecoveryTrip();
-      return;
-    }
-    // 检查本地是否有LoginToken
-    const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
-    if (!loginToken) { return }
-
-    var self = this;
-
-    Taro.showLoading({ title: '自动登录...', mask: true });
-    pomelo.entry(loginToken, function(err) {
-      if (!!err) {
-        pomelo.reInit(function() {
-          Taro.reLaunch({url: '/pages/index/index'})
-        })
-      } else {
-        self.setState({isLogin: true});
-        Taro.hideLoading();
-        self.doRecoveryTrip();
-      }
-    });
-  }
-
-  // 恢复行程
-  doRecoveryTrip () {
-    Taro.showLoading({ title: '查询可恢复行程', mask: true });
-    pomelo.queryUnfinished(function(err, ordernumber) {
-      if (!!err) {
-        pomelo.reInit(function() {
-          Taro.reLaunch({url: '/pages/index/index'})
-        })
-      } else {
-        Taro.hideLoading();
-        if (!!ordernumber) {
-          console.log('有可恢复行程', ordernumber);
-          // 改变当前状态
-        }
-      }
-    });
-  }
-
-  // 获取用户信息
-  onGotUserInfo (e) {
-    if (!!pomelo.isLogin) {
-      this.setState({isLogin: true});
-      this.doRecoveryTrip();
-      return;
-    }
-    
-    Taro.showLoading({ title: '登录中...', mask: true });
-    // 这里做成异步流
-    var self = this;
-    async.waterfall([
-      function(_cb) {
-        if (e.detail.userInfo) {
-          _cb(null, e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl);
-        } else {
-          _cb('获取用户信息错误');
-        }
-      },
-      function(_nickName, _avatarUrl, _cb) {
-        Taro.login({
-          success: function(res) {
-            console.log('wx.login code:', res.code);
-            if (!!res.code) {
-              _cb(null, _nickName, _avatarUrl, res.code);
-            } else {
-              _cb('code为空');
-            }
-          },
-          fail: function() {
-            _cb('微信端获取code失败');
-          }
-        });
-      },
-      function(_nickName, _avatarUrl, _code, _cb) {
-        pomelo.loginByWeapp(_code, _nickName, _avatarUrl, function(_err, _token) {
-          _cb(_err, _token);
-        });
-      }],
-      function(_err, _token) {
-        if (!!_err) {
-          pomelo.reInit(function() {
-            Taro.reLaunch({url: '/pages/index/index'})
-          })
-        } else {
-          Taro.setStorageSync('LOGIN_TOKEN', _token);
-          self.setState({isLogin: true});
-          Taro.hideLoading();
-          self.doRecoveryTrip();
-        }
-    })
-  }
-
-  // 地图放大
-  mapScale_enlargement() {
-    if (this.state.mapScale < 20) {
-      this.setState({mapScale:(this.state.mapScale + 1)})
-    }
-  }
-  // 地图缩小
-  mapScale_reduction() {
-    if (this.state.mapScale > 5) {
-      this.setState({mapScale:(this.state.mapScale - 1)})
-    }
-  }
-  // 地图上显示当前位置
-  showLocation() {
+  // 保持当前位置在地图中央
+  keepCurrentLocationOnScreenCenter() {
     var self = this
     wx.getLocation({
       type: 'gcj02', //返回可以用于wx.openLocation的经纬度
@@ -239,7 +129,7 @@ export default class Index extends Component {
           </CoverView>
 
           <CoverView style='position:fixed; bottom:122PX; left:10PX; z-index:99; width:44PX; height:44PX;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</Button>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.keepCurrentLocationOnScreenCenter.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
 
         </map>
