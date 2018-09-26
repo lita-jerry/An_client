@@ -23,7 +23,8 @@ export default class Index extends Component {
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994",
-    keepIntervalId: null
+    keepIntervalId: null,
+    uploadIntervalId: null
   }
 
   componentWillMount () { }
@@ -51,21 +52,27 @@ export default class Index extends Component {
   // 开始上传当前位置的定时任务
   startUploadLocationInterval() {
     var self = this
-    wx.getLocation({
-      type: 'gcj02', //返回可以用于wx.openLocation的经纬度
-      success: function(res) {
-        console.log(res.latitude, res.longitude)
-        self.setState({
-          longitude:res.longitude + "", 
-          latitude:res.latitude + ""
-        })
-        // 上传位置
-      }
-    })
+    var uploadIntervalId = setInterval(()=>{
+      wx.getLocation({
+        type: 'gcj02', //返回可以用于wx.openLocation的经纬度
+        success: function(res) {
+          console.log(res.latitude, res.longitude)
+          self.setState({
+            longitude:res.longitude + "", 
+            latitude:res.latitude + ""
+          })
+          // 上传位置
+        }
+      });
+    }, 3000);
+    this.setState({uploadIntervalId: uploadIntervalId});
   }
 
   // 结束上传当前位置的定时任务
-  stopUploadLocationInterval() { }
+  stopUploadLocationInterval() {
+    clearInterval(this.state.uploadIntervalId);
+    this.setState({uploadIntervalId: null});
+  }
 
   // 添加监听事件Handler
   addChannelHandler() { }
