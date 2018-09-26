@@ -22,7 +22,8 @@ export default class Index extends Component {
     isLogin: false,
     mapScale : 14,
     longitude: "113.324520",
-    latitude: "23.099994"
+    latitude: "23.099994",
+    keepIntervalId: null
   }
 
   componentWillMount () { }
@@ -31,38 +32,72 @@ export default class Index extends Component {
 
   componentWillUnmount () { }
 
-  componentDidShow () { }
+  componentDidShow () {
+    // 获取行程订单编号
+    console.log(this.$router.params);
+    // 检查登录情况
+    if (!pomelo.isLogin) {
+      Taro.reLaunch({url: '/pages/index/index'});
+    }
+  }
 
   componentDidHide () { }
 
   /*    自定义函数    */
 
-  // 保持当前位置在地图中央
-  keepCurrentLocationOnScreenCenter() {
+  // 进入行程房间
+  entryTrippingRoom() { }
+
+  // 开始上传当前位置的定时任务
+  startUploadLocationInterval() {
     var self = this
     wx.getLocation({
       type: 'gcj02', //返回可以用于wx.openLocation的经纬度
       success: function(res) {
-        var _latitude = res.latitude
-        var _longitude = res.longitude
-        console.log(_latitude, _longitude)
+        console.log(res.latitude, res.longitude)
         self.setState({
-          longitude:_longitude + "", 
-          latitude:_latitude + ""
+          longitude:res.longitude + "", 
+          latitude:res.latitude + ""
         })
-        // self.mapCtx.moveToLocation()
+        // 上传位置
       }
     })
-    // this.mapCtx.moveToLocation()
-    // console.log(this.state.longitude, this.state.latitude)
-    // 上传位置
   }
 
-  // 开始上传当前位置
-  startUploadLocation() {}
+  // 结束上传当前位置的定时任务
+  stopUploadLocationInterval() { }
 
-  // 结束上传当前位置
-  stopUploadLocation() {} 
+  // 添加监听事件Handler
+  addChannelHandler() { }
+
+  // 移除监听事件Handler
+  removeChannelHandler() { }
+
+  // 保持当前位置在地图中央
+  keepCurrentLocationOnScreenCenter() {
+    var self = this;
+    var keepIntervalId = setInterval(()=>{
+      self.mapCtx.moveToLocation();
+    }, 1000);
+    this.setState({keepIntervalId: keepIntervalId});
+  }
+
+  // 取消当前位置在地图中央
+  cancelCurrentLocationOnScreenCenter() {
+    clearInterval(this.state.keepIntervalId);
+    this.setState({keepIntervalId: null});
+  }
+
+  // 结束行程
+  endTrip() {
+    // 停止上传位置的定时任务
+    this.stopUploadLocationInterval();
+    // 移除监听事件Handler
+    this.removeChannelHandler();
+    // 停止保持当前位置在屏幕中央
+    this.cancelCurrentLocationOnScreenCenter()
+    // 显示所有坐标点
+  }
 
   render () {
     return (
