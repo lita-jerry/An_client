@@ -43,6 +43,7 @@ export default class Index extends Component {
     // 获取行程订单编号
     this.setState({ordernumber: this.$router.params['ordernumber']}, ()=>{
       self.entryTrippingRoom();
+      
     });
   }
 
@@ -57,6 +58,10 @@ export default class Index extends Component {
   
   // 获取行程信息
   getTripInfo() {
+    pomelo.getTripInfo(function(err, info) {
+      // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs
+      console.log(err, info);
+    });
   }
 
   // 进入行程房间
@@ -69,6 +74,8 @@ export default class Index extends Component {
         return;
       } else {
         console.log('行程编号:'+ self.state.ordernumber +' 进入房间成功');
+        // 获取行程信息
+        self.getTripInfo();
         self.startLoopMoveToLocation();
         self.startLoopUploadLocation();
       }
@@ -189,7 +196,7 @@ export default class Index extends Component {
             </div>
 
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
-              <AtButton type='primary' size='normal' style='width:50vw;'>结束行程</AtButton>
+              <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.endTrip}>结束行程</AtButton>
               <AtButton type='secondary'>分享</AtButton>
             </div>
 
