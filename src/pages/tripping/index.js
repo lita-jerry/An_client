@@ -3,10 +3,9 @@ import { View, Text } from '@tarojs/components'
 import { AtCard, AtButton } from "taro-ui"
 import './index.scss'
 
-import icon_spin_s from './images/icon-spin-s.png'
 import sos_icon from './images/sos.png'
-import trip_icon from './images/trip.png'
 import security_icon from './images/security.png'
+import end_icon from './images/end.png'
 
 import async from 'async'
 import pomelo from 'pomelo-weixin-client'
@@ -34,26 +33,54 @@ export default class Index extends Component {
   componentWillUnmount () { }
 
   componentDidShow () {
-    // 获取行程订单编号
-    console.log(this.$router.params);
+    this.initMap();
     // 检查登录情况
     if (!pomelo.isLogin) {
       Taro.reLaunch({url: '/pages/index/index'});
+      return;
     }
+    var self = this;
+    // 获取行程订单编号
+    this.setState({ordernumber: this.$router.params['ordernumber']}, ()=>{
+      self.entryTrippingRoom();
+    });
   }
 
   componentDidHide () { }
 
   /*    自定义函数    */
 
+  // 初始化地图
+  initMap() {
+    this.mapCtx = wx.createMapContext('myMap')
+  }
+  
+  // 获取行程信息
+  getTripInfo() {
+  }
+
   // 进入行程房间
-  entryTrippingRoom() { }
+  entryTrippingRoom() {
+    var self = this;
+    pomelo.entryTripRoom(this.state.ordernumber, function(_err) {
+      if (!!_err) {
+        console.log(_err);
+        Taro.reLaunch({url: '/pages/index/index'});
+        return;
+      } else {
+        console.log('行程编号:'+ self.state.ordernumber +' 进入房间成功');
+        self.startLoopMoveToLocation();
+        self.startLoopUploadLocation();
+      }
+    })
+  }
 
   // 开始上传当前位置的定时任务
-  startUploadLocationInterval() {
+  startLoopUploadLocation() {
     var self = this
     var uploadIntervalId = setInterval(()=>{
-      wx.getLocation({
+
+      Taro.getLocation({
         type: 'gcj02', //返回可以用于wx.openLocation的经纬度
         success: function(res) {
           console.log(res.latitude, res.longitude)
@@ -62,6 +89,9 @@ export default class Index extends Component {
             latitude:res.latitude + ""
           })
           // 上传位置
+          pomelo.uploadLocation(res.longitude, res.latitude, function(_err) {
+            console.log('上传位置:'+_err);
+          });
         }
       });
     }, 3000);
@@ -69,7 +99,7 @@ export default class Index extends Component {
   }
 
   // 结束上传当前位置的定时任务
-  stopUploadLocationInterval() {
+  stopLoopUploadLocation() {
     clearInterval(this.state.uploadIntervalId);
     this.setState({uploadIntervalId: null});
   }
