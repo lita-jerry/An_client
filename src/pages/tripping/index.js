@@ -81,7 +81,7 @@ export default class Index extends Component {
   removeChannelHandler() { }
 
   // 保持当前位置在地图中央
-  keepCurrentLocationOnScreenCenter() {
+  startLoopMoveToLocation() {
     var self = this;
     var keepIntervalId = setInterval(()=>{
       self.mapCtx.moveToLocation();
@@ -90,9 +90,18 @@ export default class Index extends Component {
   }
 
   // 取消当前位置在地图中央
-  cancelCurrentLocationOnScreenCenter() {
+  stopLoopMoveToLocation() {
     clearInterval(this.state.keepIntervalId);
     this.setState({keepIntervalId: null});
+  }
+
+  // 显示当前位置的按钮点击事件
+  showCurrentBTNOnClick() {
+    if (!this.state.keepIntervalId) {
+      this.startLoopMoveToLocation();
+    } else {
+      this.stopLoopMoveToLocation();
+    }
   }
 
   // 结束行程
@@ -171,7 +180,7 @@ export default class Index extends Component {
           </CoverView>
 
           <CoverView style='position:fixed; bottom:122PX; left:10PX; z-index:99; width:44PX; height:44PX;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.keepCurrentLocationOnScreenCenter.bind(this)} hoverClass='none'>⊙</Button>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showCurrentBTNOnClick.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
 
         </map>

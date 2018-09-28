@@ -32,10 +32,7 @@ export default class Index extends Component {
   componentDidShow () {
     this.doAutoLogin();
     this.mapCtx = wx.createMapContext('myMap')
-    var self = this;
-    setInterval(()=>{
-      self.showLocation();
-    }, 3000);
+    this.showLocation();
   }
 
   componentDidHide () { }
@@ -81,7 +78,8 @@ export default class Index extends Component {
         Taro.hideLoading();
         if (!!ordernumber) {
           console.log('有可恢复行程', ordernumber);
-          // 改变当前状态
+          // 跳转到tripping
+          Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
         }
       }
     });
@@ -154,23 +152,7 @@ export default class Index extends Component {
   }
   // 地图上显示当前位置
   showLocation() {
-    var self = this
-    wx.getLocation({
-      type: 'gcj02', //返回可以用于wx.openLocation的经纬度
-      success: function(res) {
-        var _latitude = res.latitude
-        var _longitude = res.longitude
-        console.log(_latitude, _longitude)
-        self.setState({
-          longitude:_longitude + "", 
-          latitude:_latitude + ""
-        })
-        // self.mapCtx.moveToLocation()
-      }
-    })
-    // this.mapCtx.moveToLocation()
-    // console.log(this.state.longitude, this.state.latitude)
-    // 上传位置
+    this.mapCtx.moveToLocation()
   }
 
   // 开始上传当前位置

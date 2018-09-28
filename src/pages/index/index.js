@@ -17,8 +17,8 @@ export default class Index extends Component {
 
   componentDidShow () {
     // 检查携带参数
-    // Taro.navigateTo({url: '/pages/trip/index'});
-    Taro.redirectTo({url:'/pages/tripping/index'})
+    Taro.navigateTo({url: '/pages/trip/index'});
+    // Taro.redirectTo({url:'/pages/tripping/index'})
   }
 
   componentDidHide () { }
