@@ -392,10 +392,11 @@ pomelo.getTripInfo =  function getTripInfo (callback) {
       // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
       if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
     },
+    // function(_cb) {
+    //   if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
+    // },
     function(_cb) {
-      if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
-    },
-    function(_cb) {
+      console.log('getTripInfo1')
       pomelo.request("trip.tripHandler.getInfo", {}, function(_data) {
         console.log('trip.tripHandler.getInfo', _data);
         if (_data['code'] !== 200) {
@@ -408,6 +409,7 @@ pomelo.getTripInfo =  function getTripInfo (callback) {
       });
     }],
     function(_err, _info) {
+      console.log('getTripInfo2')
       callback(_err, _info);
   });
 }

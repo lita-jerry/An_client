@@ -67,19 +67,32 @@ export default class Index extends Component {
   // 进入行程房间
   entryTrippingRoom() {
     var self = this;
-    pomelo.entryTripRoom(this.state.ordernumber, function(_err) {
+    async.waterfall([
+      function(_cb) {
+        // 进入行程房间
+        pomelo.entryTripRoom(self.state.ordernumber, function(_err) {
+          _cb(_err);
+        });
+      },
+      function(_cb) {
+        // 获取行程信息
+        pomelo.getTripInfo(function(_err, _info) {
+          // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs
+          _cb(_err, _info);
+        });
+      }
+    ], 
+    function(_err, _info) {
       if (!!_err) {
         console.log(_err);
         Taro.reLaunch({url: '/pages/index/index'});
         return;
-      } else {
-        console.log('行程编号:'+ self.state.ordernumber +' 进入房间成功');
-        // 获取行程信息
-        self.getTripInfo();
-        self.startLoopMoveToLocation();
-        self.startLoopUploadLocation();
       }
-    })
+      console.log('行程编号:'+ self.state.ordernumber +' 进入房间成功, 房间信息:' + _info);
+      self.startLoopMoveToLocation();
+      self.startLoopUploadLocation();
+    });
+    
   }
 
   // 开始上传当前位置的定时任务
