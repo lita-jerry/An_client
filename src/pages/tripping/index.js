@@ -104,6 +104,7 @@ export default class Index extends Component {
         type: 'gcj02', //返回可以用于wx.openLocation的经纬度
         success: function(res) {
           console.log(res.latitude, res.longitude)
+          // 这里根据上次位置做偏移计算,如果偏移微小则不做上传
           self.setState({
             longitude:res.longitude + "", 
             latitude:res.latitude + ""
@@ -112,6 +113,7 @@ export default class Index extends Component {
           pomelo.uploadLocation(res.longitude, res.latitude, function(_err) {
             console.log('上传位置:'+_err);
           });
+          // 计算当前速度
         }
       });
     }, 3000);
