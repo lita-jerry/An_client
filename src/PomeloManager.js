@@ -392,13 +392,9 @@ pomelo.getTripInfo =  function getTripInfo (ordernumber, callback) {
       // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
       if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
     },
-    // function(_cb) {
-    //   if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
-    // },
     function(_cb) {
-      console.log('getTripInfo1')
       pomelo.request("trip.tripHandler.getInfo", {ordernumber: ordernumber}, function(_data) {
-        console.log('trip.tripHandler.getInfo', _data);
+        console.log('trip.tripHandler.getInfo', ordernumber, _data);
         if (_data['code'] !== 200) {
           _cb('服务器错误');
         } else if (!!_data['error']) {
@@ -409,8 +405,51 @@ pomelo.getTripInfo =  function getTripInfo (ordernumber, callback) {
       });
     }],
     function(_err, _info) {
-      console.log('getTripInfo2')
       callback(_err, _info);
+  });
+}
+
+/**
+ * 获取行程路线
+ * 
+ * @param {String} ordernumber 行程订单号
+ * @param {Function} callback err, polyline: [{longitude, latitude, remark, time}]
+ */
+pomelo.getPolyline = function getPolyline (ordernumber, callback) {
+  _getPolyline(ordernumber, 0, [], callback);
+}
+
+// 用于递归获取路线的函数
+function _getPolyline (ordernumber, page, polyline, callback) {
+  var self = this;
+  async.waterfall([
+    function(_cb) {
+      if (pomelo.isReady) { _cb(); } else { self.init(_cb); }
+    },
+    function(_cb) {
+      // 其实想自动登录,但是无法判断用户的登录方式(自动登录或授权登录)
+      if (pomelo.isLogin) { _cb(); } else { _cb('未登录'); }
+    },
+    function(_cb) {
+      pomelo.request("trip.tripHandler.getPolyline", {ordernumber: ordernumber, page: page}, function(_data) {
+        console.log('trip.tripHandler.getPolyline', ordernumber, page, _data);
+        if (_data['code'] !== 200) {
+          _cb('服务器错误');
+        } else if (!!_data['error']) {
+          _cb(_data['msg']);
+        } else {
+          _cb(null, _data['data']);
+        }
+      });
+    }],
+    function(_err, _polyline) {
+      if (!!_err) { callback(_err); return; }
+      var newPolyline = polyline.concat(_polyline);
+      if (_polyline.length > 0) {
+        _getPolyline(ordernumber, page + 1, newPolyline, callback);
+      } else {
+        callback(null, newPolyline);
+      }
   });
 }
 

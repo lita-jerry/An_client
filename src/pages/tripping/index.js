@@ -8,6 +8,7 @@ import security_icon from './images/security.png'
 import end_icon from './images/end.png'
 
 import async from 'async'
+import dayjs from 'dayjs'
 import pomelo from 'pomelo-weixin-client'
 
 /* 行程首页 */
@@ -38,14 +39,12 @@ export default class Index extends Component {
     this.initMap();
     // 检查登录情况
     if (!pomelo.isLogin) {
-      Taro.reLaunch({url: '/pages/index/index'});
-      return;
+      this.reLaunchToIndex();
     }
     
     // 获取行程订单编号
     if (!this.$router.params['ordernumber']) {
-      Taro.reLaunch({url: '/pages/index/index'});
-      return;
+      this.reLaunchToIndex();
     }
 
     this.showCurrentLocation();
@@ -125,22 +124,49 @@ export default class Index extends Component {
   }
 
   // 显示路线图
-  showPolyline() { }
+  showPolyline() {
+    this.getPolyline();
+  }
+
+  // 获取路线
+  getPolyline() {
+    var self = this;
+    
+    pomelo.getPolyline(this.state.ordernumber, function(err, polyline) {
+      console.log(err, polyline);
+      
+    });
+  }
   
   // 获取行程信息
   getTripInfo() {
     var self = this;
 
     pomelo.getTripInfo(this.state.ordernumber, function(err, info) {
+      if (!!err) {
+        self.reLaunchToIndex();
+        return;
+      }
       // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs
-      console.log(err, info);
+
+      // 开始时间
+      var createdTime = dayjs(info['createdTime']);
+      console.log(createdTime.format('MM月DD日 HH:mm'));
+
       // 时长
-      // 距离
-      // 速度
+      // createdTime().isBefore(dayjs())
+      console.log(dayjs().diff(createdTime, 'minutes'))
+      
+      // 距离、速度 在获取路线完成后计算
 
       // 当前状态
-      self.entryTrippingRoom();
-      // self.showPolyline();
+
+      self.setState({createdTime: createdTime.format('MM月DD日 HH:mm'),
+                     lengthOfTime: dayjs().diff(createdTime, 'minutes')},
+                     ()=>{
+                      // self.entryTrippingRoom();
+                      self.showPolyline();
+                     });
     });
   }
 
@@ -151,7 +177,7 @@ export default class Index extends Component {
     pomelo.entryTripRoom(self.state.ordernumber, function(_err) {
       if (!!_err) {
         console.log(_err);
-        Taro.reLaunch({url: '/pages/index/index'});
+        self.reLaunchToIndex();
         return;
       }
 
@@ -170,13 +196,18 @@ export default class Index extends Component {
   // 移除监听事件Handler
   removeChannelHandler() { }
 
+  // 关闭当前页,返回到index页面,一般用于出错时
+  reLaunchToIndex() {
+    Taro.reLaunch({url: '/pages/index/index'});
+  }
+
   render () {
     return (
       <View className='index'>
         <AtCard
         className="info-bg"
         title='行驶中'
-        extra='9月24日23:24'
+        extra={this.state.createdTime}
         isFull={true}
         thumb={security_icon}>
           <div style='display:flex; flex-direction:column; left:0; right:0; height:19vh; align-items:center;'>
@@ -184,7 +215,7 @@ export default class Index extends Component {
 
               <div style='width:10vh; height:10vh;'>
                 <div style='display:flex; flex-direction:row; align-items:center; justify-content:center;'>
-                  <text style='font-size:150%; text-align:center; color:#53505F'>20</text>
+                  <text style='font-size:150%; text-align:center; color:#53505F'>{this.state.lengthOfTime}</text>
                   <text style='font-size:90%; text-align:center; color:#535257'>分钟</text>
                 </div>
                 <div style='display:flex; justify-content:center;'>
