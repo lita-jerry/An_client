@@ -18,12 +18,14 @@ export default class Index extends Component {
   }
 
   state = {
-    isLogin: false,
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994",
-    keepIntervalId: null,
-    uploadIntervalId: null
+    eventIntervalId: null,
+    createdTime: '-/-',
+    lengthOfTime: '-/-',
+    distance: '-/-',
+    speed: '-/-'
   }
 
   componentWillMount () { }
@@ -39,11 +41,18 @@ export default class Index extends Component {
       Taro.reLaunch({url: '/pages/index/index'});
       return;
     }
-    var self = this;
+    
     // 获取行程订单编号
+    if (!this.$router.params['ordernumber']) {
+      Taro.reLaunch({url: '/pages/index/index'});
+      return;
+    }
+
+    this.showCurrentLocation();
+
+    var self = this;
     this.setState({ordernumber: this.$router.params['ordernumber']}, ()=>{
-      self.entryTrippingRoom();
-      
+      self.getTripInfo();
     });
   }
 
@@ -55,75 +64,104 @@ export default class Index extends Component {
   initMap() {
     this.mapCtx = wx.createMapContext('myMap')
   }
+
+  // 开始事件循环
+  startEventLoop() {
+    var self = this
+    var eventIntervalId = setInterval(()=>{
+      // 显示当前位置
+      self.showCurrentLocation();
+      // 上传当前位置
+      self.uploadCurrentLocation();
+    }, 9000);
+    this.setState({eventIntervalId: eventIntervalId});
+  }
+
+  // 停止事件循环
+  stopEventLoop() {
+    clearInterval(this.state.eventIntervalId);
+    this.setState({eventIntervalId: null});
+  }
+
+  // 结束行程
+  endTripping() {
+    // 停止事件循环
+    this.stopEventLoop();
+    // 显示路线图
+    this.showPolyline();
+  }
+
+  // 显示当前位置
+  showCurrentLocation() {
+    this.mapCtx.moveToLocation();
+  }
+
+  // 上传当前位置
+  uploadCurrentLocation() {
+    var self = this;
+
+    Taro.getLocation({
+      type: 'gcj02', //返回可以用于wx.openLocation的经纬度
+      success: function(res) {
+        console.log(res.latitude, res.longitude)
+        // 这里根据上次位置做偏移计算,如果偏移微小则不做上传
+        self.setState({
+          longitude:res.longitude + "", 
+          latitude:res.latitude + ""
+        });
+        // 如果偏移量较小,则不上传位置,此时 this.state 中的值还未改变
+        var deviation = '0.00003';
+        if (Math.abs(self.state.longitude - res.longitude) > deviation || Math.abs(self.state.latitude - res.latitude) > deviation) {
+          // 上传位置
+          pomelo.uploadLocation(res.longitude, res.latitude, function(_err) {
+            console.log('上传位置:'+_err);
+          });
+        } else {
+          console.log('位置偏移量较小,不上传');
+        }
+        // 计算当前速度
+      }
+    });
+  }
+
+  // 显示路线图
+  showPolyline() { }
   
   // 获取行程信息
   getTripInfo() {
-    pomelo.getTripInfo(function(err, info) {
+    var self = this;
+
+    pomelo.getTripInfo(this.state.ordernumber, function(err, info) {
       // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs
       console.log(err, info);
+      // 时长
+      // 距离
+      // 速度
+
+      // 当前状态
+      self.entryTrippingRoom();
+      // self.showPolyline();
     });
   }
 
   // 进入行程房间
   entryTrippingRoom() {
     var self = this;
-    async.waterfall([
-      function(_cb) {
-        // 进入行程房间
-        pomelo.entryTripRoom(self.state.ordernumber, function(_err) {
-          _cb(_err);
-        });
-      },
-      function(_cb) {
-        // 获取行程信息
-        pomelo.getTripInfo(function(_err, _info) {
-          // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs
-          _cb(_err, _info);
-        });
-      }
-    ], 
-    function(_err, _info) {
+
+    pomelo.entryTripRoom(self.state.ordernumber, function(_err) {
       if (!!_err) {
         console.log(_err);
         Taro.reLaunch({url: '/pages/index/index'});
         return;
       }
-      console.log('行程编号:'+ self.state.ordernumber +' 进入房间成功, 房间信息:' + _info);
-      self.startLoopMoveToLocation();
-      self.startLoopUploadLocation();
+
+      console.log('行程编号:'+ self.state.ordernumber +' 进入房间成功');
+
+      self.uploadCurrentLocation();
+
+      // 开始事件循环
+      self.startEventLoop();
     });
-    
-  }
-
-  // 开始上传当前位置的定时任务
-  startLoopUploadLocation() {
-    var self = this
-    var uploadIntervalId = setInterval(()=>{
-
-      Taro.getLocation({
-        type: 'gcj02', //返回可以用于wx.openLocation的经纬度
-        success: function(res) {
-          console.log(res.latitude, res.longitude)
-          // 这里根据上次位置做偏移计算,如果偏移微小则不做上传
-          self.setState({
-            longitude:res.longitude + "", 
-            latitude:res.latitude + ""
-          })
-          // 上传位置
-          pomelo.uploadLocation(res.longitude, res.latitude, function(_err) {
-            console.log('上传位置:'+_err);
-          });
-          // 计算当前速度
-        }
-      });
-    }, 3000);
-    this.setState({uploadIntervalId: uploadIntervalId});
-  }
-
-  // 结束上传当前位置的定时任务
-  stopLoopUploadLocation() {
-    clearInterval(this.state.uploadIntervalId);
-    this.setState({uploadIntervalId: null});
   }
 
   // 添加监听事件Handler
@@ -131,41 +169,6 @@ export default class Index extends Component {
 
   // 移除监听事件Handler
   removeChannelHandler() { }
-
-  // 保持当前位置在地图中央
-  startLoopMoveToLocation() {
-    var self = this;
-    var keepIntervalId = setInterval(()=>{
-      self.mapCtx.moveToLocation();
-    }, 1000);
-    this.setState({keepIntervalId: keepIntervalId});
-  }
-
-  // 取消当前位置在地图中央
-  stopLoopMoveToLocation() {
-    clearInterval(this.state.keepIntervalId);
-    this.setState({keepIntervalId: null});
-  }
-
-  // 显示当前位置的按钮点击事件
-  showCurrentBTNOnClick() {
-    if (!this.state.keepIntervalId) {
-      this.startLoopMoveToLocation();
-    } else {
-      this.stopLoopMoveToLocation();
-    }
-  }
-
-  // 结束行程
-  endTrip() {
-    // 停止上传位置的定时任务
-    this.stopUploadLocationInterval();
-    // 移除监听事件Handler
-    this.removeChannelHandler();
-    // 停止保持当前位置在屏幕中央
-    this.cancelCurrentLocationOnScreenCenter()
-    // 显示所有坐标点
-  }
 
   render () {
     return (
@@ -211,7 +214,7 @@ export default class Index extends Component {
             </div>
 
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
-              <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.endTrip}>结束行程</AtButton>
+              <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.endTripping}>结束行程</AtButton>
               <AtButton type='secondary'>分享</AtButton>
             </div>
 

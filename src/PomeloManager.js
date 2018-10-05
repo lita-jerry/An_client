@@ -382,7 +382,7 @@ pomelo.tripSOS =  function tripSOS (callback) {
  * 
  * @param {Function} callback err, info{uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs}
  */
-pomelo.getTripInfo =  function getTripInfo (callback) {
+pomelo.getTripInfo =  function getTripInfo (ordernumber, callback) {
   var self = this;
   async.waterfall([
     function(_cb) {
@@ -397,7 +397,7 @@ pomelo.getTripInfo =  function getTripInfo (callback) {
     // },
     function(_cb) {
       console.log('getTripInfo1')
-      pomelo.request("trip.tripHandler.getInfo", {}, function(_data) {
+      pomelo.request("trip.tripHandler.getInfo", {ordernumber: ordernumber}, function(_data) {
         console.log('trip.tripHandler.getInfo', _data);
         if (_data['code'] !== 200) {
           _cb('服务器错误');
