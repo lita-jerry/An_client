@@ -4,7 +4,7 @@ import Index from './pages/index'
 import './app.scss'
 
 // Pomelo扩展
-import './PomeloManager'
+// import './PomeloManager'
 
 class App extends Component {
 
@@ -20,6 +20,10 @@ class App extends Component {
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
     }
+  }
+
+  globalData = {
+    pomelo: null
   }
 
   componentDidMount () {}

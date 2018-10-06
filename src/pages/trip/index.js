@@ -1,4 +1,4 @@
-import Taro, { Component } from '@tarojs/taro'
+import Taro, { Component, getApp } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 import './index.scss'
 
@@ -30,9 +30,25 @@ export default class Index extends Component {
   componentWillUnmount () { }
 
   componentDidShow () {
-    this.doAutoLogin();
-    this.mapCtx = wx.createMapContext('myMap')
-    this.showLocation();
+
+    // console.log(getApp().globalData.pomelo);
+
+    var self = this;
+    pomelo.init({
+      host: 'an.jerrysir.com',
+      port: 3010
+    }, function() {
+      // self.doAutoLogin();
+      // self.mapCtx = wx.createMapContext('myMap')
+      // self.showLocation();
+      pomelo.request("connector.entryHandler.entry", {}, function(_data) {
+        console.log('connector.entryHandler.entry', _data);
+      });
+    });
+
+    // this.doAutoLogin();
+    // this.mapCtx = wx.createMapContext('myMap')
+    // this.showLocation();
   }
 
   componentDidHide () { }
@@ -78,6 +94,24 @@ export default class Index extends Component {
         Taro.hideLoading();
         if (!!ordernumber) {
           console.log('有可恢复行程', ordernumber);
+          // 跳转到tripping
+          Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
+        }
+      }
+    });
+  }
+
+  // 创建行程
+  createTrip() {
+    Taro.showLoading({ title: '创建行程', mask: true });
+    pomelo.createTrip(function(err, ordernumber) {
+      if (!!err) {
+        pomelo.reInit(function() {
+          Taro.reLaunch({url: '/pages/index/index'})
+        })
+      } else {
+        Taro.hideLoading();
+        if (!!ordernumber) {
           // 跳转到tripping
           Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
         }
@@ -201,7 +235,7 @@ export default class Index extends Component {
             </CoverView>
 
             <CoverView class='start-bg' >
-              <CoverImage className='start-icon' src={trip_icon} onClick={this.createTripOrder} />
+              <CoverImage className='start-icon' src={trip_icon} onClick={this.createTrip} />
               {
                 !this.state.isLogin
                 && <Button className='start-icon-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>

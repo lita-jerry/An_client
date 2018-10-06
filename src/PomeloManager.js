@@ -2,6 +2,7 @@
 
 import pomelo from 'pomelo-weixin-client'
 import async  from 'async'
+import { getApp } from '@tarojs/taro';
 
 // const PemeloGlobalVariable = pomelo;
 
@@ -74,7 +75,7 @@ export function init (callback) {
 
   // 初始化
   pomelo.init({
-    host: 'jerrysir.com/',
+    host: 'an.jerrysir.com',
     port: 3010
   }, function() {
       console.log('pomelo init success.');
@@ -202,8 +203,8 @@ pomelo.endTrip =  function endTrip (callback) {
       if (pomelo.isInTripRoom) { _cb(); } else { _cb('未在行程房间内'); }
     },
     function(_cb) {
-      pomelo.request("connector.entryHandler.entryTripRoom", {}, function(_data) {
-        console.log('connector.entryHandler.entryTripRoom', _data);
+      pomelo.request("trip.tripHandler.end", {}, function(_data) {
+        console.log('trip.tripHandler.end', _data);
         if (_data['code'] !== 200) {
           _cb('服务器错误');
         } else if (!!_data['error']) {
@@ -549,4 +550,6 @@ pomelo.reInit = (callback) => {
 }
 
 console.log('引入外部类执行')
-init(()=>{});
+init(()=>{
+  getApp().globalData.pomelo = pomelo;
+});
