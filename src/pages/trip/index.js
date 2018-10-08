@@ -9,6 +9,8 @@ import trip_icon from './images/trip.png'
 import async from 'async'
 import pomelo from 'pomelo-weixin-client'
 
+import pomeloUtil from '../../util/pomelo'
+
 /* 行程首页 */
 export default class Index extends Component {
 
@@ -34,16 +36,19 @@ export default class Index extends Component {
     // console.log(getApp().globalData.pomelo);
 
     var self = this;
-    pomelo.init({
-      host: 'an.jerrysir.com',
-      port: 3010
-    }, function() {
-      // self.doAutoLogin();
-      // self.mapCtx = wx.createMapContext('myMap')
-      // self.showLocation();
-      pomelo.request("connector.entryHandler.entry", {}, function(_data) {
-        console.log('connector.entryHandler.entry', _data);
-      });
+    // pomelo.init({
+    //   host: 'an.jerrysir.com',
+    //   port: 3010
+    // }, function() {
+    //   // self.doAutoLogin();
+    //   // self.mapCtx = wx.createMapContext('myMap')
+    //   // self.showLocation();
+    //   pomelo.request("connector.entryHandler.entry", {}, function(_data) {
+    //     console.log('connector.entryHandler.entry', _data);
+    //   });
+    // });
+    pomeloUtil.init(pomelo, function(_err) {
+      pomeloUtil.checkLoginToken(pomelo, null, function(_err) {});
     });
 
     // this.doAutoLogin();
@@ -51,7 +56,9 @@ export default class Index extends Component {
     // this.showLocation();
   }
 
-  componentDidHide () { }
+  componentDidHide () {
+    pomelo.disconnect();
+  }
 
   /*    自定义函数    */
 

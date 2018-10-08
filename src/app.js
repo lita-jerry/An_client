@@ -3,9 +3,6 @@ import Index from './pages/index'
 
 import './app.scss'
 
-// Pomelo扩展
-// import './PomeloManager'
-
 class App extends Component {
 
   config = {
