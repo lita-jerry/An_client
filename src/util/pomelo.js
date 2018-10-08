@@ -13,7 +13,8 @@ var init = function (pomelo, callback) {
     host: 'an.jerrysir.com',
     port: 3010
   }, function() {
-      callback();
+    console.log('pomelo is init success.');
+    callback();
   });
 }
 

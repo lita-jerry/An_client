@@ -20,71 +20,90 @@ export default class Index extends Component {
 
   state = {
     isLogin: false,
+    isConnect: false,
+    eventIntervalId: null,
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994"
   }
 
-  componentWillMount () { }
+  componentWillMount () {
+    var self = this;
+    pomelo.on('disconnect', function(value){
+      console.log('on pomelo disconnect:', value);
+      self.setState({isConnect: false, isLogin: false});
+      Taro.showLoading({ title: '尝试重新连接...', mask: true });
+    });
+  }
 
   componentDidMount () { }
 
-  componentWillUnmount () { }
+  componentWillUnmount () {
+    clearInterval(this.state.eventIntervalId);
+    pomelo.disconnect();
+  }
 
   componentDidShow () {
-
-    // console.log(getApp().globalData.pomelo);
-
     var self = this;
-    // pomelo.init({
-    //   host: 'an.jerrysir.com',
-    //   port: 3010
-    // }, function() {
-    //   // self.doAutoLogin();
-    //   // self.mapCtx = wx.createMapContext('myMap')
-    //   // self.showLocation();
-    //   pomelo.request("connector.entryHandler.entry", {}, function(_data) {
-    //     console.log('connector.entryHandler.entry', _data);
-    //   });
-    // });
-    pomeloUtil.init(pomelo, function(_err) {
-      pomeloUtil.checkLoginToken(pomelo, null, function(_err) {});
-    });
+    // 循环事件
+    var eventIntervalId = setInterval(()=>{
+      if (!self.state.isConnect) {
+        self.doConnect();
+      }
+    }, 3000);
 
-    // this.doAutoLogin();
-    // this.mapCtx = wx.createMapContext('myMap')
-    // this.showLocation();
+    this.setState({eventIntervalId: eventIntervalId}, ()=> {
+      self.doConnect();
+
+      self.mapCtx = wx.createMapContext('myMap');
+      self.showCurrentLocation();
+    });
   }
 
   componentDidHide () {
+    clearInterval(this.state.eventIntervalId);
     pomelo.disconnect();
   }
 
   /*    自定义函数    */
 
-  // 自动登录
-  doAutoLogin () {
-    if (!!pomelo.isLogin) {
-      this.setState({isLogin: true});
-      this.doRecoveryTrip();
+  // pomelo连接
+  doConnect () {
+
+    if (!!this.state.isConnect) {
+      Taro.hideLoading();
+      this.doCheckLoginToken();
       return;
-    }
+    };
+
+    var self = this;
+    pomeloUtil.init(pomelo, function(_err) {
+      if (!!_err) {
+        self.setState({isConnect: false, isLogin: false});
+        Taro.showLoading({ title: '断开连接...', mask: true });
+      } else {
+        Taro.hideLoading();
+        self.setState({isConnect: true});
+        self.doCheckLoginToken();
+      }
+    });
+  }
+
+  // 校验loginToken
+  doCheckLoginToken () {
+    if (!!this.state.isLogin) { return }
+
     // 检查本地是否有LoginToken
     const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
     if (!loginToken) { return }
 
     var self = this;
-
-    Taro.showLoading({ title: '自动登录...', mask: true });
-    pomelo.entry(loginToken, function(err) {
-      if (!!err) {
-        pomelo.reInit(function() {
-          Taro.reLaunch({url: '/pages/index/index'})
-        })
+    pomeloUtil.checkLoginToken(pomelo, loginToken, function(_err) {
+      if (!!_err) {
+        console.log(_err);
+        Taro.setStorageSync('LOGIN_TOKEN', null);
       } else {
         self.setState({isLogin: true});
-        Taro.hideLoading();
-        self.doRecoveryTrip();
       }
     });
   }
@@ -192,8 +211,8 @@ export default class Index extends Component {
     }
   }
   // 地图上显示当前位置
-  showLocation() {
-    this.mapCtx.moveToLocation()
+  showCurrentLocation() {
+    this.mapCtx.moveToLocation();
   }
 
   // 开始上传当前位置
@@ -252,7 +271,7 @@ export default class Index extends Component {
           </CoverView>
 
           <CoverView className='map-show-location-bg'>
-            <Button className='map-show-location-btn' onClick={this.showLocation.bind(this)} hoverClass='none'>⊙</Button>
+            <Button className='map-show-location-btn' onClick={this.showCurrentLocation.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
 
         </Map>
