@@ -19,8 +19,8 @@ export default class Index extends Component {
   }
 
   state = {
-    isLogin: false,
     isConnect: false,
+    isLogin: false,
     eventIntervalId: null,
     mapScale : 14,
     longitude: "113.324520",
@@ -80,7 +80,6 @@ export default class Index extends Component {
     pomeloUtil.init(pomelo, function(err) {
       if (!!err) {
         self.setState({isConnect: false, isLogin: false});
-        Taro.showLoading({ title: '断开连接', mask: true });
       } else {
         Taro.hideLoading();
         self.setState({isConnect: true});
