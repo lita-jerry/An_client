@@ -138,7 +138,9 @@ export default class Index extends Component {
   // 获取用户信息
   onGotUserInfo (e) {
 
-    if (!this.state.isConnect) { return }
+    console.log('这里执行了？');
+
+    if (this.state.isLogin) { return }
 
     Taro.showLoading({ title: '登录中', mask: true });
 
@@ -228,29 +230,19 @@ export default class Index extends Component {
               <CoverView className='map-tool-left-box'>
                 <CoverImage src={follow_icon} class='map-tool-box-image' />
                 <CoverView class='map-tool-box-text'>我的关注</CoverView>
-                {
-                  !this.state.isLogin
-                  && <Button className='map-tool-left-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-                }
               </CoverView>
-              
+
+              <CoverView style="width: 66PX;"> </CoverView>
+
               <CoverView className='map-tool-right-box'>
                 <CoverImage src={my_icon} class='map-tool-box-image' />
-                <CoverView class='map-tool-box-text'>我的</CoverView>
-                {
-                  !this.state.isLogin
-                  && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-                }
+                <CoverView class='map-tool-box-text'>设置中心</CoverView>
               </CoverView>
               
             </CoverView>
 
             <CoverView class='start-bg' >
               <CoverImage className='start-icon' src={trip_icon} onClick={this.createTrip} />
-              {
-                !this.state.isLogin
-                && <Button className='start-icon-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-              }
             </CoverView>
 
           </CoverView>
@@ -258,6 +250,11 @@ export default class Index extends Component {
           <CoverView className='map-show-location-bg'>
             <Button className='map-show-location-btn' onClick={this.showCurrentLocation.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
+
+          {/* {
+            !this.state.isLogin
+            && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
+          } */}
 
         </Map>
 

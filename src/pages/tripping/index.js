@@ -119,7 +119,7 @@ export default class Index extends Component {
 
     pomeloUtil.end(pomelo, function(err) {
       if (!!err) { return }
-      elf.setState({tripState: 2}, ()=>{
+      self.setState({tripState: 2}, ()=>{
         // 显示路线图
         self.showPolyline();
       });
@@ -339,16 +339,16 @@ export default class Index extends Component {
              longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale+''}
              polyline={[{
-              points: this.state.polyline.map((currentValue, index, arr) => {
-                return {
-                  longitude: currentValue['longitude'],
-                  latitude: currentValue['latitude']
-                }
-              }),
-              color:"#FF0000DD",
-              width: 2,
-              dottedLine: true
-            }]}
+               points: this.state.polyline.map((currentValue, index, arr) => {
+                 return {
+                   longitude: currentValue['longitude'],
+                   latitude: currentValue['latitude']
+                  }
+                }),
+                color:"#FF0000DD",
+                width: 2,
+                dottedLine: true
+              }]}
              show-location = {this.state.tripState === 1}>
  
           <CoverView style='position:flex; position:absolute; bottom:25PX; width:100vw; height:90PX;'>

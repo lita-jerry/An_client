@@ -31,8 +31,8 @@ var loginByWeapp = function (pomelo, code, nickName, avatarUrl, callback) {
 
   if (!pomelo) { callback('pomelo is null'); return; }
 
-  pomelo.request("connector.entryHandler.loginByOtherPlatform", {code: code, nickName: nickName, avatarURL: avatarUrl}, function(result) {
-    console.log('connector.entryHandler.loginByOtherPlatform', {code: code, nickName: nickName, avatarUrl: avatarUrl}, result);
+  pomelo.request("user.userHandler.loginByWeapp", {code: code, nickName: nickName, avatarURL: avatarUrl}, function(result) {
+    console.log('user.userHandler.loginByWeapp', {code: code, nickName: nickName, avatarUrl: avatarUrl}, result);
     if (result.code !== 200) {
       callback('服务器错误');
     } else if (!!result.error) {
