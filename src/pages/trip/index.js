@@ -29,10 +29,10 @@ export default class Index extends Component {
 
   componentWillMount () {
     var self = this;
-    pomelo.on('disconnect', function(value){
-      console.log('on pomelo disconnect:', value);
+    pomelo.on('disconnect', function(err){
+      console.log('on pomelo disconnect:', err);
       self.setState({isConnect: false, isLogin: false});
-      Taro.showLoading({ title: '尝试重新连接...', mask: true });
+      Taro.showLoading({ title: '尝试重新连接', mask: true });
     });
   }
 
@@ -77,10 +77,10 @@ export default class Index extends Component {
     };
 
     var self = this;
-    pomeloUtil.init(pomelo, function(_err) {
-      if (!!_err) {
+    pomeloUtil.init(pomelo, function(err) {
+      if (!!err) {
         self.setState({isConnect: false, isLogin: false});
-        Taro.showLoading({ title: '断开连接...', mask: true });
+        Taro.showLoading({ title: '断开连接', mask: true });
       } else {
         Taro.hideLoading();
         self.setState({isConnect: true});
@@ -98,12 +98,14 @@ export default class Index extends Component {
     if (!loginToken) { return }
 
     var self = this;
-    pomeloUtil.checkLoginToken(pomelo, loginToken, function(_err) {
-      if (!!_err) {
-        console.log(_err);
+    pomeloUtil.checkLoginToken(pomelo, loginToken, function(err) {
+      if (!!err) {
+        console.log(err);
         Taro.setStorageSync('LOGIN_TOKEN', null);
       } else {
-        self.setState({isLogin: true});
+        self.setState({isLogin: true}, ()=>{
+          self.doRecoveryTrip();
+        });
       }
     });
   }
@@ -111,18 +113,12 @@ export default class Index extends Component {
   // 恢复行程
   doRecoveryTrip () {
     Taro.showLoading({ title: '查询可恢复行程', mask: true });
-    pomelo.queryUnfinished(function(err, ordernumber) {
-      if (!!err) {
-        pomelo.reInit(function() {
-          Taro.reLaunch({url: '/pages/index/index'})
-        })
-      } else {
-        Taro.hideLoading();
-        if (!!ordernumber) {
-          console.log('有可恢复行程', ordernumber);
-          // 跳转到tripping
-          Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
-        }
+
+    pomeloUtil.queryUnfinished(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, ordernumber) {
+      Taro.hideLoading();
+      if (!err && !!ordernumber) {
+        // 跳转到tripping
+        Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
       }
     });
   }
@@ -130,32 +126,25 @@ export default class Index extends Component {
   // 创建行程
   createTrip() {
     Taro.showLoading({ title: '创建行程', mask: true });
-    pomelo.createTrip(function(err, ordernumber) {
-      if (!!err) {
-        pomelo.reInit(function() {
-          Taro.reLaunch({url: '/pages/index/index'})
-        })
-      } else {
-        Taro.hideLoading();
-        if (!!ordernumber) {
-          // 跳转到tripping
-          Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
-        }
+    
+    pomeloUtil.create(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, ordernumber) {
+      Taro.hideLoading();
+      if (!err && !!ordernumber) {
+        // 跳转到tripping
+        Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
       }
     });
   }
 
   // 获取用户信息
   onGotUserInfo (e) {
-    if (!!pomelo.isLogin) {
-      this.setState({isLogin: true});
-      this.doRecoveryTrip();
-      return;
-    }
-    
-    Taro.showLoading({ title: '登录中...', mask: true });
-    // 这里做成异步流
+
+    if (!this.state.isConnect) { return }
+
+    Taro.showLoading({ title: '登录中', mask: true });
+
     var self = this;
+
     async.waterfall([
       function(_cb) {
         if (e.detail.userInfo) {
@@ -167,11 +156,10 @@ export default class Index extends Component {
       function(_nickName, _avatarUrl, _cb) {
         Taro.login({
           success: function(res) {
-            console.log('wx.login code:', res.code);
             if (!!res.code) {
               _cb(null, _nickName, _avatarUrl, res.code);
             } else {
-              _cb('code为空');
+              _cb('wx.login code为空');
             }
           },
           fail: function() {
@@ -180,22 +168,20 @@ export default class Index extends Component {
         });
       },
       function(_nickName, _avatarUrl, _code, _cb) {
-        pomelo.loginByWeapp(_code, _nickName, _avatarUrl, function(_err, _token) {
-          _cb(_err, _token);
+        pomeloUtil.loginByWeapp(pomelo, _code, _nickName, _avatarUrl, function(err, token) {
+          _cb(err, token);
         });
       }],
       function(_err, _token) {
-        if (!!_err) {
-          pomelo.reInit(function() {
-            Taro.reLaunch({url: '/pages/index/index'})
-          })
-        } else {
+        Taro.hideLoading();
+        if (!_err) {
           Taro.setStorageSync('LOGIN_TOKEN', _token);
           self.setState({isLogin: true});
-          Taro.hideLoading();
-          self.doRecoveryTrip();
+          self.setState({isLogin: true}, ()=>{
+            self.doRecoveryTrip();
+          });
         }
-    })
+    });
   }
 
   // 地图放大
