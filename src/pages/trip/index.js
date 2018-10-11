@@ -1,5 +1,5 @@
 import Taro, { Component, getApp } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import './index.scss'
 
 import follow_icon from './images/follow.png'
@@ -15,7 +15,7 @@ import pomeloUtil from '../../util/pomelo'
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: '平安到家'
+    navigationBarTitleText: 'Project1'
   }
 
   state = {
@@ -56,7 +56,9 @@ export default class Index extends Component {
       self.doConnect();
 
       self.mapCtx = wx.createMapContext('myMap');
-      self.showCurrentLocation();
+      setTimeout(() => {
+        self.showCurrentLocation();
+      }, 1000);
     });
   }
 
@@ -113,11 +115,11 @@ export default class Index extends Component {
   doRecoveryTrip () {
     Taro.showLoading({ title: '查询可恢复行程', mask: true });
 
+    var self = this;
     pomeloUtil.queryUnfinished(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, ordernumber) {
       Taro.hideLoading();
       if (!err && !!ordernumber) {
-        // 跳转到tripping
-        Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
+        self.toTripping(ordernumber);
       }
     });
   }
@@ -126,19 +128,22 @@ export default class Index extends Component {
   createTrip() {
     Taro.showLoading({ title: '创建行程', mask: true });
     
+    var self = this;
     pomeloUtil.create(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, ordernumber) {
       Taro.hideLoading();
       if (!err && !!ordernumber) {
-        // 跳转到tripping
-        Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber})
+        self.toTripping(ordernumber);
       }
     });
   }
 
+  // 跳转到tripping
+  toTripping(ordernumber) {
+    Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber});
+  }
+
   // 获取用户信息
   onGotUserInfo (e) {
-
-    console.log('这里执行了？');
 
     if (this.state.isLogin) { return }
 
@@ -222,39 +227,38 @@ export default class Index extends Component {
             <Button className='map-zoom-enlargement' onClick={this.mapScale_enlargement.bind(this)} hoverClass='none'>+</Button>
             <Button className='map-zoom-reduction' onClick={this.mapScale_reduction.bind(this)} hoverClass='none'>-</Button>
           </CoverView> */}
-          
-          <CoverView class='map-tool-bar-bg'>
+          {
+            this.state.isLogin
+            ? <CoverView class='map-tool-bar-bg'>
 
-            <CoverView class='map-tool-box-bg'>
+                <CoverView class='map-tool-box-bg'>
 
-              <CoverView className='map-tool-left-box'>
-                <CoverImage src={follow_icon} class='map-tool-box-image' />
-                <CoverView class='map-tool-box-text'>我的关注</CoverView>
+                  <CoverView className='map-tool-left-box'>
+                    <CoverImage src={follow_icon} class='map-tool-box-image' />
+                    <CoverView class='map-tool-box-text'>我的关注</CoverView>
+                  </CoverView>
+
+                  <CoverView style="width: 66PX;"> </CoverView>
+
+                  <CoverView className='map-tool-right-box'>
+                    <CoverImage src={my_icon} class='map-tool-box-image' />
+                    <CoverView class='map-tool-box-text'>设置中心</CoverView>
+                  </CoverView>
+                  
+                </CoverView>
+
+                <CoverView class='start-bg' >
+                  <CoverImage className='start-icon' src={trip_icon} onClick={this.createTrip} />
+                </CoverView>
+
               </CoverView>
 
-              <CoverView style="width: 66PX;"> </CoverView>
-
-              <CoverView className='map-tool-right-box'>
-                <CoverImage src={my_icon} class='map-tool-box-image' />
-                <CoverView class='map-tool-box-text'>设置中心</CoverView>
-              </CoverView>
-              
-            </CoverView>
-
-            <CoverView class='start-bg' >
-              <CoverImage className='start-icon' src={trip_icon} onClick={this.createTrip} />
-            </CoverView>
-
-          </CoverView>
+            : <CoverView className='unlogin-bg'><Button openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' >小程序快捷登录</Button></CoverView>
+          }
 
           <CoverView className='map-show-location-bg'>
             <Button className='map-show-location-btn' onClick={this.showCurrentLocation.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
-
-          {/* {
-            !this.state.isLogin
-            && <Button className='map-tool-right-box-unlogin' openType="getUserInfo" lang="zh_CN" onGetUserInfo={this.onGotUserInfo.bind(this)} type='primary' ></Button>
-          } */}
 
         </Map>
 

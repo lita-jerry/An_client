@@ -24,17 +24,22 @@ export default class Index extends Component {
     isConnect: false,
     isEntry: false,
     eventIntervalId: null,
-    tripState: 0,
+
     ordernumber: null,
+    tripState: 0,
+    createdTime: '-/-',
+    lastUpdatedTime: '-/-',
+    polyline: [],
+    
+    
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994",
     showLocation: true,
-    createdTime: '-/-',
+    
     lengthOfTime: 0,
     distance: 0,
-    speed: '-/-',
-    polyline: []
+    speed: 0 // m/s
   }
 
   componentWillMount () {
@@ -48,7 +53,7 @@ export default class Index extends Component {
     var self = this;
     pomelo.on('disconnect', function(err){
       console.log('on pomelo disconnect:', err);
-      self.setState({isConnect: false, isEntry: false, tripState: 0});
+      self.setState({isConnect: false, isEntry: false});
       Taro.showLoading({ title: '尝试重新连接', mask: true });
     });
   }
@@ -62,6 +67,7 @@ export default class Index extends Component {
 
   componentDidShow () {
     var self = this;
+    if (this.state.tripState === 2) { return }
     // 循环事件
     var eventIntervalId = setInterval(()=>{
       if (!self.state.isConnect) {
@@ -72,6 +78,9 @@ export default class Index extends Component {
           self.showCurrentLocation();
           // 上传当前位置
           self.uploadCurrentLocation();
+        } else if (self.state.tripState === 0) {
+          // 表示仅建立了Socket连接
+          self.doConnect();
         }
       }
     }, 3000);
@@ -113,13 +122,46 @@ export default class Index extends Component {
     });
   }
 
+  // 刷新当前状态,重新计算时间、距离、速度
+  refreshStatus() {
+    var lengthOfTime = 0;
+    var distance = 0;
+    var speed = 0; // 米/每秒
+
+    if (this.state.tripState === 1) {
+      // 时长
+      var createdTime = dayjs(this.state.createdTime);
+      lengthOfTime = dayjs().diff(createdTime, 'minutes');
+
+      // 距离
+      distance = this.computePolylineDistance(this.state.polyline);
+
+      // 行程平均配速这里不做计算
+
+      this.setState({lengthOfTime: lengthOfTime < 1 ? 1 : lengthOfTime, distance: distance});
+    } else if (this.state.tripState === 2) {
+      // 时长
+      var createdTime = this.state.createdTime;
+      var endTime = this.state.lastUpdatedTime; // 此时,最后更新时间就是行程结束时间
+      lengthOfTime = dayjs(endTime).diff(dayjs(createdTime), 'minutes');
+
+      // 距离
+      distance = this.computePolylineDistance(this.state.polyline);
+
+      // 行程平均配速
+      speed = (distance * 1000) / (dayjs(endTime).diff(dayjs(createdTime), 'second')); // 千米/每时
+      console.log('平均速度:', speed);
+      this.setState({lengthOfTime: lengthOfTime < 1 ? 1 : lengthOfTime, distance: distance, speed: speed});
+    }
+  }
+
   // 结束行程
   endTripping() {
     var self = this;
 
     pomeloUtil.end(pomelo, function(err) {
       if (!!err) { return }
-      self.setState({tripState: 2}, ()=>{
+      self.setState({tripState: 2, lastUpdatedTime: dayjs().format()}, ()=>{
         // 显示路线图
         self.showPolyline();
       });
@@ -139,22 +181,33 @@ export default class Index extends Component {
       type: 'gcj02', //返回可以用于wx.openLocation的经纬度
       success: function(res) {
         console.log(res.latitude, res.longitude)
+        console.log(res);
         // 这里根据上次位置做偏移计算,如果偏移微小则不做上传
         self.setState({
           longitude: res.longitude + "", 
           latitude: res.latitude + ""
         });
         // 如果偏移量较小,则不上传位置,此时 this.state 中的值还未改变
-        var deviation = '0.0006';
+        var deviation = '0.00003';
         if (Math.abs(self.state.longitude - res.longitude) > deviation || Math.abs(self.state.latitude - res.latitude) > deviation) {
           // 上传位置
           pomeloUtil.uploadLocation(pomelo, res.longitude, res.latitude, function(err) {
-            Taro.showToast({title: '网络不稳定', icon: 'none', duration: 2000});
+            if (!!err) {
+              Taro.showToast({title: '网络不稳定', icon: 'none', duration: 2000});
+            } else {
+              Taro.showToast({title: '位置已上传, 当前速度:'+res.speed, icon: 'none', duration: 2000});
+              var polyline = self.state.polyline;
+              self.setState({polyline: polyline.concat({longitude: res.longitude, latitude: res.latitude})});
+            }
           });
         } else {
           console.log('位置偏移量较小,不上传');
         }
         // 计算当前速度
+        // var distance = self.computePolylineDistance([{latitude: self.state.latitude, longitude: self.state.longitude}, {latitude: res.latitude, longitude: res.longitude}]);
+        // var speed = distance / (3 / 60 * 60); // 转成 千米/每时
+        // self.setState({speed: speed}, ()=>{ self.refreshStatus() });
+        self.setState({speed: res.speed > 0 ? res.speed : 0}, ()=>{ self.refreshStatus() });
       }
     });
   }
@@ -164,23 +217,16 @@ export default class Index extends Component {
     var self = this;
     this.getPolyline(function(err, polyline) {
       if (!!err) { return }
-
-      var distance = self.computePolylineDistance(polyline);
-
-      self.setState({
-        polyline: polyline,
-        distance: distance
-      }, ()=> {
-        var points = self.state.polyline.map((currentValue, index, arr) => {
-          return {
-            longitude: currentValue['longitude'],
-            latitude: currentValue['latitude']
-          };
-        });
-        self.mapCtx.includePoints({
-          points: points
-        });
-      });      
+      var points = self.state.polyline.map((currentValue, index, arr) => {
+        return {
+          longitude: currentValue['longitude'],
+          latitude: currentValue['latitude']
+        };
+      });
+      self.mapCtx.includePoints({
+        points: points
+      });
+      self.refreshStatus();    
     });
   }
 
@@ -189,7 +235,11 @@ export default class Index extends Component {
     var self = this;
     pomeloUtil.getPolyline(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err, polyline) {
       if (!!err) { callback('获取路线失败'); return; }
-      callback(null, polyline);
+      self.setState({
+        polyline: polyline
+      }, ()=> {
+        callback(null);
+      });
     });
   }
 
@@ -229,27 +279,19 @@ export default class Index extends Component {
     pomeloUtil.getInfo(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err, tripInfo) {
       if (!!err) { return }
 
-      // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime, polyline, logs
-
-      // 开始时间
-      var createdTime = dayjs(tripInfo.createdTime);
-      console.log(createdTime.format('MM月DD日 HH:mm'));
-
-      // 时长
-      // createdTime().isBefore(dayjs())
-      var lengthOfTime = dayjs().diff(createdTime, 'minutes');
-      
-      // 距离、速度 在获取路线完成后计算
+      // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime
 
       self.setState({
-        createdTime: createdTime.format('MM月DD日 HH:mm'),
-        lengthOfTime: lengthOfTime > 0 ? lengthOfTime : 1
+        createdTime: tripInfo.createdTime,
+        lastUpdatedTime: tripInfo.lastUpdatedTime
       }, ()=> {
         if (tripInfo.tripState === 1) {
           self.entryTrippingRoom();
         } else if (tripInfo.tripState === 2) {
-          self.showPolyline();
-        } else { return }
+          self.setState({tripState: 2}, ()=>{
+            self.showPolyline();
+          });
+        }
       });
     });
   }
@@ -265,6 +307,9 @@ export default class Index extends Component {
       if (!!err) { return }
       self.setState({isEntry: true, tripState: 1});
       self.uploadCurrentLocation();
+      self.getPolyline(function(_err) {
+        self.refreshStatus();
+      });
     });
   }
 
@@ -285,7 +330,7 @@ export default class Index extends Component {
         <AtCard
         className="info-bg"
         title={this.state.tripState === 1 ? '行驶中' : '已结束'}
-        extra={this.state.createdTime}
+        extra={dayjs(this.state.createdTime).format('MM月DD日 HH:mm')}
         isFull={true}
         thumb={this.state.tripState === 1 ? security_icon : end_icon}>
           <div style='display:flex; flex-direction:column; left:0; right:0; height:19vh; align-items:center;'>
@@ -303,8 +348,8 @@ export default class Index extends Component {
 
               <div style='width:10vh; height:10vh;'>
                 <div style='display:flex; flex-direction:row; align-items:center; justify-content:center;'>
-                  <text style='font-size:150%; text-align:center; color:#53505F'>{this.state.distance.toFixed(2)}</text>
-                  <text style='font-size:90%; text-align:center; color:#535257'>km</text>
+                  <text style='font-size:150%; text-align:center; color:#53505F'>{this.state.distance > 1 ? this.state.distance.toFixed(2) : this.state.distance.toFixed(3) * 1000}</text>
+                  <text style='font-size:90%; text-align:center; color:#535257'>{this.state.distance > 1 ? 'km' : 'm'}</text>
                 </div>
                 <div style='display:flex; justify-content:center;'>
                   <text style='color:#878787'>行驶距离</text>
@@ -313,18 +358,18 @@ export default class Index extends Component {
 
               <div style='width:10vh; height:10vh;'>
                 <div style='display:flex; flex-direction:row; align-items:center; justify-content:center;'>
-                  <text style='font-size:150%; text-align:center; color:#53505F'>{(this.state.distance / this.state.lengthOfTime * 60).toFixed(2)}</text>
-                  <text style='font-size:90%; text-align:center; color:#535257'>km/h</text>
+                  <text style='font-size:150%; text-align:center; color:#53505F'>{this.state.speed > 1000 ? (this.state.speed / 1000.0).toFixed(2) : this.state.speed.toFixed(1)}</text>
+                  <text style='font-size:90%; text-align:center; color:#535257'>{this.state.speed > 1000 ? 'km/s' : 'm/s'}</text>
                 </div>
                 <div style='display:flex; justify-content:center;'>
-                  <text style='color:#878787'>平均速度</text>
+                  <text style='color:#878787'>{this.state.tripState === 1 ? '当前速度' : '平均速度'}</text>
                 </div>
               </div>
             </div>
 
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
               {
-                this.state.tripState === 1
+                this.state.tripState === 1 || this.state.tripState === 3
                 ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.endTripping}>结束行程</AtButton>
                 : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.reLaunchToIndex}>关闭页面</AtButton>
               }
@@ -347,7 +392,7 @@ export default class Index extends Component {
                 }),
                 color:"#FF0000DD",
                 width: 2,
-                dottedLine: true
+                dottedLine: false
               }]}
              show-location = {this.state.tripState === 1}>
  
