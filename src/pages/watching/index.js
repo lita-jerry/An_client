@@ -13,11 +13,11 @@ import pomelo from 'pomelo-weixin-client'
 
 import pomeloUtil from '../../util/pomelo'
 
-/* 正在出行(房主模式) */
+/* 正在出行(观察者模式) */
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: '我的行程'
+    navigationBarTitleText: '行程守护'
   }
 
   state = {
@@ -35,7 +35,7 @@ export default class Index extends Component {
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994",
-    showLocation: true,
+    showLocation: false,
     
     lengthOfTime: 0,
     distance: 0,
