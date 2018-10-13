@@ -356,6 +356,29 @@ var _getPolyline = function (pomelo, loginToken, ordernumber, page, polyline, ca
   });
 }
 
+/**
+ * 获取单个用户的关注状态
+ * 
+ * @param {pomelo} pomelo pomelo实例
+ * @param {String} loginToken 登录Token
+ * @param {String} followid 关注的用户id
+ * @param {Function} callback err, isFollow
+ */
+var getFollowState = function (pomelo, loginToken, followid, callback) {
+  if (!pomelo) { callback('pomelo is null'); return; }
+
+  pomelo.request("user.userHandler.getFollowState", {token: loginToken, followid: followid}, function(result) {
+    console.log("user.userHandler.getFollowState", {token: loginToken, followid: followid}, result);
+    if (result.code !== 200) {
+      callback('服务器错误');
+    } else if (!!result.error) {
+      callback(result.msg);
+    } else {
+      callback(null, result.data.isFollow);
+    }
+  });
+}
+
 exports.init                  = init;
 exports.loginByWeapp          = loginByWeapp;
 exports.checkLoginToken       = checkLoginToken;
@@ -371,3 +394,4 @@ exports.getUserInfoInTripRoom = getUserInfoInTripRoom;
 exports.follow                = follow;
 exports.unfollow              = unfollow;
 exports.getPolyline           = getPolyline;
+exports.getFollowState        = getFollowState;

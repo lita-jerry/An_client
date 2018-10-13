@@ -23,11 +23,12 @@ export default class Index extends Component {
   state = {
     isConnect: false,
     isEntry: false,
-    isFollowing: false,
+    isFollowing: 0, // 0: 未知, 1: 已关注, 2: 未关注
     eventIntervalId: null,
 
     ordernumber: null,
     tripState: 0,
+    tripCreatorid: null,
     createdTime: '-/-',
     lastUpdatedTime: '-/-',
     polyline: [],
@@ -330,9 +331,40 @@ export default class Index extends Component {
   // 移除监听事件Handler
   removeChannelHandler() { }
 
-  // 关注房主
-  // 取消关注房主
+  // 添加关注
+  addFollow() {
+    if (!!this.state.isEntry || !!this.state.tripCreatorid || this.state.isFollowing === 1) { return }
+
+    var self = this;
+
+    pomeloUtil.follow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
+      if (!!err) { return }
+      self.setState({isFollowing: 1});
+    });
+  }
+  // 取消关注
+  cancelFollow() {
+    if (!!this.state.isEntry || !!this.state.tripCreatorid || !this.state.isFollowing === 1) { return }
+
+    var self = this;
+
+    pomeloUtil.unfollow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
+      if (!!err) { return }
+      self.setState({isFollowing: 2});
+    });
+  }
   // 查询关注状态
+  getFollowState() {
+    if (!!this.state.isEntry || !!this.state.tripCreatorid) { return }
+
+    var self = this;
+
+    pomeloUtil.getFollowState(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err, isFollow) {
+      if (!!err) { return }
+      self.setState({isFollowing: isFollow ? 1 : 2});
+    });
+  }
+  
 
   // 关闭当前页,返回到index页面,一般用于出错时
   reLaunchToIndex() {
