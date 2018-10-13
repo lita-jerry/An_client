@@ -23,6 +23,7 @@ export default class Index extends Component {
   state = {
     isConnect: false,
     isEntry: false,
+    isFollowing: false,
     eventIntervalId: null,
 
     ordernumber: null,
@@ -148,7 +149,7 @@ export default class Index extends Component {
       distance = this.computePolylineDistance(this.state.polyline);
 
       // 行程平均配速
-      speed = (distance * 1000) / (dayjs(endTime).diff(dayjs(createdTime), 'second')); // 千米/每时
+      speed = (distance * 1000) / (dayjs(endTime).diff(dayjs(createdTime), 'second')); // 米/分钟
       console.log('平均速度:', speed);
       this.setState({lengthOfTime: lengthOfTime < 1 ? 1 : lengthOfTime, distance: distance, speed: speed});
     }
@@ -278,6 +279,12 @@ export default class Index extends Component {
     pomeloUtil.getInfo(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err, tripInfo) {
       if (!!err) { return }
 
+      // 如果是该行程的创建者
+      if (!!tripInfo.isCreator) {
+        self.reLaunchToIndex();
+        return;
+      }
+
       // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime
 
       self.setState({
@@ -285,7 +292,7 @@ export default class Index extends Component {
         lastUpdatedTime: tripInfo.lastUpdatedTime
       }, ()=> {
         if (tripInfo.tripState === 1) {
-          self.entryTrippingRoom();
+          self.entryWatchingRoom();
         } else if (tripInfo.tripState === 2) {
           self.setState({tripState: 2}, ()=>{
             self.showPolyline();
@@ -295,17 +302,17 @@ export default class Index extends Component {
     });
   }
 
-  // 进入行程房间
-  entryTrippingRoom() {
+  // 进入观察者房间
+  entryWatchingRoom() {
 
     if (this.state.isEntry) { return }
 
     var self = this;
-
-    pomeloUtil.entryTrippingRoom(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err) {
+    
+    pomeloUtil.entryWatchingRoom(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err) {
       if (!!err) { return }
       self.setState({isEntry: true, tripState: 1});
-      self.uploadCurrentLocation();
+      self.addChannelHandler();
       self.getPolyline(function(_err) {
         self.refreshStatus();
       });
@@ -313,10 +320,19 @@ export default class Index extends Component {
   }
 
   // 添加监听事件Handler
-  addChannelHandler() { }
+  addChannelHandler() {
+    // 房主进入房间
+    // 房主离开房间
+    // 行程结束
+    // 位置变化
+  }
 
   // 移除监听事件Handler
   removeChannelHandler() { }
+
+  // 关注房主
+  // 取消关注房主
+  // 查询关注状态
 
   // 关闭当前页,返回到index页面,一般用于出错时
   reLaunchToIndex() {
@@ -368,9 +384,9 @@ export default class Index extends Component {
 
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
               {
-                this.state.tripState === 1 || this.state.tripState === 3
-                ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.endTripping}>结束行程</AtButton>
-                : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.reLaunchToIndex}>关闭页面</AtButton>
+                this.state.isFollowing
+                ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.cancelFollow}>取消关注</AtButton>
+                : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.addFollow}>关注Ta</AtButton>
               }
               <AtButton type='secondary'>分享</AtButton>
             </div>
