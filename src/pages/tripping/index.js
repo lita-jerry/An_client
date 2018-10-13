@@ -106,7 +106,6 @@ export default class Index extends Component {
 
     if (!!this.state.isConnect) {
       Taro.hideLoading();
-      this.getTripInfo();
       return;
     };
 
@@ -272,7 +271,7 @@ export default class Index extends Component {
   // 获取行程信息
   getTripInfo() {
     
-    if (this.state.isEntry) { return }
+    if (!!this.state.isEntry) { return }
 
     var self = this;
 
