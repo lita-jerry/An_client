@@ -50,18 +50,14 @@ export default class Index extends Component {
     }
     this.setState({ordernumber: this.$router.params['ordernumber']});
 
-    var self = this;
-    pomelo.on('disconnect', function(err){
-      console.log('on pomelo disconnect:', err);
-      self.setState({isConnect: false, isEntry: false});
-      Taro.showLoading({ title: '尝试重新连接', mask: true });
-    });
+    this.addChannelHandler();
   }
 
   componentDidMount () { }
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
+    this.removeChannelHandler();
     pomelo.disconnect();
   }
 
@@ -163,6 +159,7 @@ export default class Index extends Component {
       self.setState({tripState: 2, lastUpdatedTime: dayjs().format()}, ()=>{
         // 显示路线图
         self.showPolyline();
+        clearInterval(self.state.eventIntervalId);
       });
     });
   }
@@ -313,10 +310,27 @@ export default class Index extends Component {
   }
 
   // 添加监听事件Handler
-  addChannelHandler() { }
+  addChannelHandler() {
+    var self = this;
+    pomelo.on('disconnect', function(err){
+      // console.log('on pomelo disconnect:', err, 'on tripping page');
+      console.error('on pomelo disconnect:', err, 'on tripping page');
+      self.setState({isConnect: false, isEntry: false});
+
+      console.log('当前行程状态：', self.state.tripState);
+      // if (self.state.tripState === 2) { return }
+      if (self.state.tripState === 2) {
+        return
+      } else {
+        Taro.showLoading({ title: '尝试重新连接', mask: true });
+      }
+    });
+  }
 
   // 移除监听事件Handler
-  removeChannelHandler() { }
+  removeChannelHandler() {
+    pomelo.removeAllListeners();
+  }
 
   // 关闭当前页,返回到index页面,一般用于出错时
   reLaunchToIndex() {

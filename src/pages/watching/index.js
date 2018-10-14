@@ -56,6 +56,8 @@ export default class Index extends Component {
     pomelo.on('disconnect', function(err){
       console.log('on pomelo disconnect:', err);
       self.setState({isConnect: false, isEntry: false});
+      
+      if (self.state.tripState === 2) { return }
       Taro.showLoading({ title: '尝试重新连接', mask: true });
     });
   }
@@ -76,10 +78,8 @@ export default class Index extends Component {
         self.doConnect();
       } else {
         if (self.state.tripState === 1) {
-          // 显示当前位置
-          self.showCurrentLocation();
-          // 上传当前位置
-          self.uploadCurrentLocation();
+          // 显示最新出现的位置
+          self.showLastLocation();
         } else if (self.state.tripState === 0) {
           // 表示仅建立了Socket连接
           self.doConnect();
@@ -137,7 +137,8 @@ export default class Index extends Component {
       // 距离
       distance = this.computePolylineDistance(this.state.polyline);
 
-      // 行程平均配速这里不做计算
+      // 当前速度
+
 
       this.setState({lengthOfTime: lengthOfTime < 1 ? 1 : lengthOfTime, distance: distance});
     } else if (this.state.tripState === 2) {
@@ -169,10 +170,8 @@ export default class Index extends Component {
     });
   }
 
-  // 显示当前位置
-  showCurrentLocation() {
-    this.mapCtx.moveToLocation();
-  }
+  // 显示最新出现的位置
+  showLastLocation() {}
 
   // 上传当前位置
   uploadCurrentLocation() {
@@ -299,6 +298,7 @@ export default class Index extends Component {
             self.showPolyline();
           });
         }
+        self.getFollowState();
       });
     });
   }
@@ -443,15 +443,15 @@ export default class Index extends Component {
               }]}
              show-location = {this.state.tripState === 1}>
  
-          <CoverView style='position:flex; position:absolute; bottom:25PX; width:100vw; height:90PX;'>
+          {/* <CoverView style='position:flex; position:absolute; bottom:25PX; width:100vw; height:90PX;'> */}
             {/* <view style='position: absolute; z-index:199; left:0; top:0; width: 74PX; height: 74PX; background: url(images/icon-spin-s.png) no-repeat; animation: spin 800ms infinite linear;'></CoverView> */}
-            <CoverView style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66PX; height:66PX; background-color:white; border:2PX solid #DC143C; border-radius:33PX; box-shadow: 0 0 15PX #4E4E4E;' >
-                <CoverImage style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66%; height:66%;' src={sos_icon} onClick={this.createTripOrder} />
-            </CoverView>
-          </CoverView>
+            {/* <CoverView style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66PX; height:66PX; background-color:white; border:2PX solid #DC143C; border-radius:33PX; box-shadow: 0 0 15PX #4E4E4E;' > */}
+                {/* <CoverImage style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66%; height:66%;' src={sos_icon} onClick={this.createTripOrder} /> */}
+            {/* </CoverView> */}
+          {/* </CoverView> */}
 
           <CoverView style='position:fixed; bottom:122PX; left:10PX; z-index:99; width:44PX; height:44PX;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showCurrentLocation.bind(this)} hoverClass='none'>⊙</Button>
+            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showLastLocation.bind(this)} hoverClass='none'>⊙</Button>
           </CoverView>
 
         </map>

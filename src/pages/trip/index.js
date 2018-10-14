@@ -28,18 +28,15 @@ export default class Index extends Component {
   }
 
   componentWillMount () {
-    var self = this;
-    pomelo.on('disconnect', function(err){
-      console.log('on pomelo disconnect:', err);
-      self.setState({isConnect: false, isLogin: false});
-      Taro.showLoading({ title: '尝试重新连接', mask: true });
-    });
+    this.addPomeloHandler();
   }
 
   componentDidMount () { }
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
+    
+    this.removePomeloHandler();
     pomelo.disconnect();
   }
 
@@ -49,6 +46,7 @@ export default class Index extends Component {
     var eventIntervalId = setInterval(()=>{
       if (!self.state.isConnect) {
         self.doConnect();
+        console.log('重新登录了');
       }
     }, 3000);
 
@@ -207,11 +205,21 @@ export default class Index extends Component {
     this.mapCtx.moveToLocation();
   }
 
-  // 开始上传当前位置
-  startUploadLocation() {}
+  // 添加pomelo的handler
+  addPomeloHandler() {
+    var self = this;
+    pomelo.on('disconnect', function(err){
+      // console.log('on pomelo disconnect:', err);
+      console.error('on pomelo disconnect:', err);
+      self.setState({isConnect: false, isLogin: false});
+      Taro.showLoading({ title: '尝试重新连接', mask: true });
+    });
+  }
 
-  // 结束上传当前位置
-  stopUploadLocation() {} 
+  // 移除pomelo的handler
+  removePomeloHandler() {
+    pomelo.removeAllListeners();
+  }
 
   render () {
     return (
