@@ -23,11 +23,11 @@ export default class Index extends Component {
   state = {
     isConnect: false,
     isEntry: false,
-    isFollowing: 0, // 0: 未知, 1: 已关注, 2: 未关注
+    followState: 0, // 0: 未知, 1: 已关注, 2: 未关注
     eventIntervalId: null,
 
     ordernumber: null,
-    tripState: 0,
+    tripState: 0, // 0: 未知, 1: 进行时, 2: 已结束, 3: 失联中
     tripCreatorid: null,
     createdTime: '-/-',
     lastUpdatedTime: '-/-',
@@ -56,7 +56,7 @@ export default class Index extends Component {
     pomelo.on('disconnect', function(err){
       console.log('on pomelo disconnect:', err);
       self.setState({isConnect: false, isEntry: false});
-      
+
       if (self.state.tripState === 2) { return }
       Taro.showLoading({ title: '尝试重新连接', mask: true });
     });
@@ -66,6 +66,7 @@ export default class Index extends Component {
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
+    this.removePomeloHandler();
     pomelo.disconnect();
   }
 
@@ -77,7 +78,7 @@ export default class Index extends Component {
       if (!self.state.isConnect) {
         self.doConnect();
       } else {
-        if (self.state.tripState === 1) {
+        if (self.state.tripState === 1 || self.state.tripState === 3) {
           // 显示最新出现的位置
           self.showLastLocation();
         } else if (self.state.tripState === 0) {
@@ -91,7 +92,6 @@ export default class Index extends Component {
       self.doConnect();
 
       self.mapCtx = wx.createMapContext('myMap');
-      self.showCurrentLocation();
     });
   }
 
@@ -157,21 +157,10 @@ export default class Index extends Component {
     }
   }
 
-  // 结束行程
-  endTripping() {
-    var self = this;
-
-    pomeloUtil.end(pomelo, function(err) {
-      if (!!err) { return }
-      self.setState({tripState: 2, lastUpdatedTime: dayjs().format()}, ()=>{
-        // 显示路线图
-        self.showPolyline();
-      });
-    });
-  }
-
   // 显示最新出现的位置
-  showLastLocation() {}
+  showLastLocation() {
+    
+  }
 
   // 上传当前位置
   uploadCurrentLocation() {
@@ -254,7 +243,7 @@ export default class Index extends Component {
       var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(La3 / 2), 2) + Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)));
       s = s * 6378.137;//地球半径
       s = Math.round(s * 10000) / 10000;
-      console.log("计算结果",s)
+      // console.log("计算结果",s)
       return s;
     }
     
@@ -288,15 +277,13 @@ export default class Index extends Component {
       // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime
 
       self.setState({
-        createdTime: tripInfo.createdTime,
-        lastUpdatedTime: tripInfo.lastUpdatedTime
+        tripState: tripInfo.tripState,
+        tripCreatorid: tripInfo.creatorid
       }, ()=> {
-        if (tripInfo.tripState === 1) {
+        if (self.state.tripState === 1 || self.state.tripState === 3) {
           self.entryWatchingRoom();
-        } else if (tripInfo.tripState === 2) {
-          self.setState({tripState: 2}, ()=>{
-            self.showPolyline();
-          });
+        } else if (self.state.tripState === 2) {
+          self.showPolyline();
         }
         self.getFollowState();
       });
@@ -305,52 +292,95 @@ export default class Index extends Component {
 
   // 进入观察者房间
   entryWatchingRoom() {
-
+    
     if (this.state.isEntry) { return }
 
     var self = this;
     
     pomeloUtil.entryWatchingRoom(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err) {
       if (!!err) { return }
-      self.setState({isEntry: true, tripState: 1});
-      self.addChannelHandler();
+      self.setState({isEntry: true});
+      self.addPomeloHandler();
       self.getPolyline(function(_err) {
         self.refreshStatus();
       });
     });
   }
 
-  // 添加监听事件Handler
-  addChannelHandler() {
+  // 添加pomelo监听响应
+  addPomeloHandler() {
+
+    var self = this;
+
     // 房主进入房间
+    pomelo.on('onTripCreatorAdd', function(data) {
+      Taro.showToast({title: '房主恢复连接', icon: 'none', duration: 2000});
+      self.setState({tripState: 1});
+    });
+
     // 房主离开房间
+    pomelo.on('onTripCreatorLeave', function(data) {
+      Taro.showToast({title: '房主断开连接', icon: 'none', duration: 2000});
+      self.setState({tripState: 3});
+    });
+
     // 行程结束
+    pomelo.on('onTripEnd', function(data) {
+      Taro.showToast({title: '行程结束', icon: 'none', duration: 2000});
+      self.setState({tripState: 2, lastUpdatedTime: dayjs().format()}, ()=>{
+        // 显示路线图
+        self.showPolyline();
+        clearInterval(self.state.eventIntervalId);
+      });
+    });
+
     // 位置变化
+    pomelo.on('onLocationChanged', function(data) {
+      console.log('onLocationChanged:', data)
+      self.setState({longitude: data.longitude, latitude: data.latitude});
+      self.refreshStatus();
+    });
+
+    // 求助
+    pomelo.on('onSOS', function(data) {
+      console.log('onSOS');
+      var intervalId = setInterval(()=>{
+        Taro.showToast({title: '房主发出求救,请及时联系确保安全', icon: 'none', duration: 2000});
+      }, 2500);
+
+      setTimeout(() => {
+        clearInterval(intervalId);
+      }, 10000);
+    });
+
+    // 暂时未用 onTripWatcherAdd onTripWatcherLeave
   }
 
-  // 移除监听事件Handler
-  removeChannelHandler() { }
+  // 移除pomelo监听响应
+  removePomeloHandler() {
+    pomelo.removeAllListeners();
+  }
 
   // 添加关注
   addFollow() {
-    if (!!this.state.isEntry || !!this.state.tripCreatorid || this.state.isFollowing === 1) { return }
+    if (!!this.state.isEntry || !!this.state.tripCreatorid || this.state.followState === 1) { return }
 
     var self = this;
 
     pomeloUtil.follow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
       if (!!err) { return }
-      self.setState({isFollowing: 1});
+      self.setState({followState: 1});
     });
   }
   // 取消关注
   cancelFollow() {
-    if (!!this.state.isEntry || !!this.state.tripCreatorid || !this.state.isFollowing === 1) { return }
+    if (!!this.state.isEntry || !!this.state.tripCreatorid || !this.state.followState === 1) { return }
 
     var self = this;
 
     pomeloUtil.unfollow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
       if (!!err) { return }
-      self.setState({isFollowing: 2});
+      self.setState({followState: 2});
     });
   }
   // 查询关注状态
@@ -361,10 +391,12 @@ export default class Index extends Component {
 
     pomeloUtil.getFollowState(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err, isFollow) {
       if (!!err) { return }
-      self.setState({isFollowing: isFollow ? 1 : 2});
+      self.setState({followState: isFollow ? 1 : 2});
     });
   }
-  
+
+  // 分享行程
+  onShareAppMessage(Object) {}
 
   // 关闭当前页,返回到index页面,一般用于出错时
   reLaunchToIndex() {
@@ -416,11 +448,11 @@ export default class Index extends Component {
 
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
               {
-                this.state.isFollowing
+                this.state.followState
                 ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.cancelFollow}>取消关注</AtButton>
                 : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.addFollow}>关注Ta</AtButton>
               }
-              <AtButton type='secondary'>分享</AtButton>
+              <AtButton type='secondary' openType='share'>分享</AtButton>
             </div>
 
           </div>

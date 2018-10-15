@@ -180,7 +180,6 @@ export default class Index extends Component {
         Taro.hideLoading();
         if (!_err) {
           Taro.setStorageSync('LOGIN_TOKEN', _token);
-          self.setState({isLogin: true});
           self.setState({isLogin: true}, ()=>{
             self.doRecoveryTrip();
           });
@@ -205,7 +204,7 @@ export default class Index extends Component {
     this.mapCtx.moveToLocation();
   }
 
-  // 添加pomelo的handler
+  // 添加pomelo监听响应
   addPomeloHandler() {
     var self = this;
     pomelo.on('disconnect', function(err){
@@ -216,7 +215,7 @@ export default class Index extends Component {
     });
   }
 
-  // 移除pomelo的handler
+  // 移除pomelo监听响应
   removePomeloHandler() {
     pomelo.removeAllListeners();
   }

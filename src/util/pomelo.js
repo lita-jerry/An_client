@@ -216,8 +216,8 @@ var tripSOS = function (pomelo, callback) {
 
   if (!pomelo) { callback('pomelo is null'); return; }
 
-  pomelo.request("trip.tripHandler.tripSOS", {}, function(result) {
-    console.log("trip.tripHandler.tripSOS", {}, result);
+  pomelo.request("trip.tripHandler.SOS", {}, function(result) {
+    console.log("trip.tripHandler.SOS", {}, result);
     if (result.code !== 200) {
       callback('服务器错误');
     } else if (!!result.error) {

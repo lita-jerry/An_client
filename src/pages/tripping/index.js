@@ -50,14 +50,14 @@ export default class Index extends Component {
     }
     this.setState({ordernumber: this.$router.params['ordernumber']});
 
-    this.addChannelHandler();
+    this.addPomeloHandler();
   }
 
   componentDidMount () { }
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
-    this.removeChannelHandler();
+    this.removePomeloHandler();
     pomelo.disconnect();
   }
 
@@ -309,8 +309,8 @@ export default class Index extends Component {
     });
   }
 
-  // 添加监听事件Handler
-  addChannelHandler() {
+  // 添加pomelo监听响应
+  addPomeloHandler() {
     var self = this;
     pomelo.on('disconnect', function(err){
       // console.log('on pomelo disconnect:', err, 'on tripping page');
@@ -327,9 +327,31 @@ export default class Index extends Component {
     });
   }
 
-  // 移除监听事件Handler
-  removeChannelHandler() {
+  // 移除pomelo监听响应
+  removePomeloHandler() {
     pomelo.removeAllListeners();
+  }
+
+  // 分享行程
+  onShareAppMessage(Object) {
+    return {
+      title: '自定义转发标题',
+      path: '/pages/index/index?event=watching&ordernumber='+this.state.ordernumber
+    }
+  }
+
+  // 发出求助
+  sendSOS() {
+
+    if (!this.state.isEntry) { return }
+
+    var self = this;
+
+    pomeloUtil.tripSOS(pomelo, function(err) {
+      if (!err) {
+        Taro.showToast({title: '已发出求助信号', icon: 'none', duration: 2000});
+      }
+    });
   }
 
   // 关闭当前页,返回到index页面,一般用于出错时
@@ -386,7 +408,7 @@ export default class Index extends Component {
                 ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.endTripping}>结束行程</AtButton>
                 : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.reLaunchToIndex}>关闭页面</AtButton>
               }
-              <AtButton type='secondary'>分享</AtButton>
+              <AtButton type='secondary' openType='share'>分享</AtButton>
             </div>
 
           </div>
@@ -412,7 +434,7 @@ export default class Index extends Component {
           <CoverView style='position:flex; position:absolute; bottom:25PX; width:100vw; height:90PX;'>
             {/* <view style='position: absolute; z-index:199; left:0; top:0; width: 74PX; height: 74PX; background: url(images/icon-spin-s.png) no-repeat; animation: spin 800ms infinite linear;'></CoverView> */}
             <CoverView style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66PX; height:66PX; background-color:white; border:2PX solid #DC143C; border-radius:33PX; box-shadow: 0 0 15PX #4E4E4E;' >
-                <CoverImage style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66%; height:66%;' src={sos_icon} onClick={this.createTripOrder} />
+                <CoverImage style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:66%; height:66%;' src={sos_icon} onClick={this.sendSOS} />
             </CoverView>
           </CoverView>
 

@@ -17,11 +17,24 @@ export default class Index extends Component {
 
   componentDidShow () {
     // 检查携带参数
-    Taro.navigateTo({url: '/pages/trip/index'});
-    // Taro.redirectTo({url:'/pages/tripping/index'})
+    if (!this.$router.params['event']) {
+      this.toTrip();
+      return;
+    }
+
+    if (this.$router.params['event'] === 'watching') {
+      Taro.navigateTo({url: '/pages/watching/entry?ordernumber='+this.$router.params['ordernumber']});
+      return;
+    }
+
+    this.toTrip();
   }
 
   componentDidHide () { }
+
+  toTrip() {
+    Taro.redirectTo({url:'/pages/trip/index'});
+  }
 
   render () {
     return (

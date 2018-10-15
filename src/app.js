@@ -9,7 +9,9 @@ class App extends Component {
     pages: [
       'pages/index/index',
       'pages/trip/index',
-      'pages/tripping/index'
+      'pages/tripping/index',
+      'pages/watching/index',
+      'pages/watching/entry'
     ],
     window: {
       backgroundTextStyle: 'light',
