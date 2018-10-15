@@ -38,6 +38,7 @@ export default class Index extends Component {
     longitude: "113.324520",
     latitude: "23.099994",
     showLocation: false,
+    markers: [],
     
     lengthOfTime: 0,
     distance: 0,
@@ -278,13 +279,17 @@ export default class Index extends Component {
 
       self.setState({
         tripState: tripInfo.tripState,
-        tripCreatorid: tripInfo.creatorid
+        tripCreatorid: tripInfo.creatorid,
+        createdTime: tripInfo.createdTime,
+        longitude: tripInfo.lastPlace.longitude,
+        latitude: tripInfo.lastPlace.latitude,
+        lastUpdatedTime: tripInfo.lastUpdatedTime,
+        markers: [{id: 1, latitude: tripInfo.lastPlace.latitude, longitude: tripInfo.lastPlace.longitude, name: '当前位置'}]
       }, ()=> {
         if (self.state.tripState === 1 || self.state.tripState === 3) {
           self.entryWatchingRoom();
-        } else if (self.state.tripState === 2) {
-          self.showPolyline();
         }
+        self.showPolyline();
         self.getFollowState();
       });
     });
@@ -337,8 +342,35 @@ export default class Index extends Component {
     // 位置变化
     pomelo.on('onLocationChanged', function(data) {
       console.log('onLocationChanged:', data)
-      self.setState({longitude: data.longitude, latitude: data.latitude});
-      self.refreshStatus();
+      
+      self.mapCtx.translateMarker({
+        markerId: 1,
+        autoRotate: false,
+        duration: 1000,
+        destination: {
+          latitude: data.latitude,
+          longitude: data.longitude,
+        },
+        animationEnd() {
+          var polyline = self.state.polyline;
+          var startTime = self.state.lastUpdatedTime;
+          var lengthOfTime = dayjs().diff(dayjs(startTime), 'second');
+          var distance = self.computePolylineDistance([
+            {longitude: self.state.longitude, latitude: self.state.latitude},
+            {longitude: data.longitude, latitude: data.latitude}
+          ]);
+          var speed = distance * 1000 / lengthOfTime;
+
+          self.setState({
+            longitude: data.longitude, 
+            latitude: data.latitude,
+            lastUpdatedTime: dayjs().format(),
+            polyline: polyline.concat({longitude: data.longitude, latitude: data.latitude}),
+            speed: speed
+          });
+          self.refreshStatus();
+        }
+      })
     });
 
     // 求助
@@ -363,34 +395,35 @@ export default class Index extends Component {
 
   // 添加关注
   addFollow() {
-    if (!!this.state.isEntry || !!this.state.tripCreatorid || this.state.followState === 1) { return }
+    if (!this.state.isEntry || !this.state.tripCreatorid || this.state.followState === 1) { return }
 
     var self = this;
 
     pomeloUtil.follow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
-      if (!!err) { return }
-      self.setState({followState: 1});
+      self.getFollowState();
     });
   }
   // 取消关注
   cancelFollow() {
-    if (!!this.state.isEntry || !!this.state.tripCreatorid || !this.state.followState === 1) { return }
+    if (!this.state.isEntry || !this.state.tripCreatorid || !this.state.followState === 1) { return }
 
     var self = this;
 
     pomeloUtil.unfollow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
-      if (!!err) { return }
-      self.setState({followState: 2});
+      self.getFollowState();
     });
   }
   // 查询关注状态
   getFollowState() {
-    if (!!this.state.isEntry || !!this.state.tripCreatorid) { return }
+    if (!this.state.isEntry || !this.state.tripCreatorid) { return }
 
     var self = this;
 
     pomeloUtil.getFollowState(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err, isFollow) {
-      if (!!err) { return }
+      if (!!err) {
+        console.error(err);
+        return;
+      }
       self.setState({followState: isFollow ? 1 : 2});
     });
   }
@@ -448,7 +481,7 @@ export default class Index extends Component {
 
             <div style='display:flex; flex-direction:row; justify-content:space-around; left:0; right:0; margin:auto; width:90vw; height:6vh;'>
               {
-                this.state.followState
+                this.state.followState === 1
                 ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.cancelFollow}>取消关注</AtButton>
                 : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.addFollow}>关注Ta</AtButton>
               }
@@ -473,7 +506,8 @@ export default class Index extends Component {
                 width: 2,
                 dottedLine: false
               }]}
-             show-location = {this.state.tripState === 1}>
+             show-location = {false}
+             markers = {this.state.markers}>
  
           {/* <CoverView style='position:flex; position:absolute; bottom:25PX; width:100vw; height:90PX;'> */}
             {/* <view style='position: absolute; z-index:199; left:0; top:0; width: 74PX; height: 74PX; background: url(images/icon-spin-s.png) no-repeat; animation: spin 800ms infinite linear;'></CoverView> */}
@@ -482,9 +516,9 @@ export default class Index extends Component {
             {/* </CoverView> */}
           {/* </CoverView> */}
 
-          <CoverView style='position:fixed; bottom:122PX; left:10PX; z-index:99; width:44PX; height:44PX;'>
-            <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showLastLocation.bind(this)} hoverClass='none'>⊙</Button>
-          </CoverView>
+          {/* <CoverView style='position:fixed; bottom:122PX; left:10PX; z-index:99; width:44PX; height:44PX;'> */}
+            {/* <Button style='position:absolute; left:0; top:0; right:0; bottom:0; margin:auto; width:99%; height:99%;' onClick={this.showLastLocation.bind(this)} hoverClass='none'>⊙</Button> */}
+          {/* </CoverView> */}
 
         </map>
 
