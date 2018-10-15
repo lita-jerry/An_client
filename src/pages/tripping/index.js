@@ -191,7 +191,7 @@ export default class Index extends Component {
             if (!!err) {
               Taro.showToast({title: '网络不稳定', icon: 'none', duration: 2000});
             } else {
-              Taro.showToast({title: '位置已上传, 当前速度:'+res.speed, icon: 'none', duration: 2000});
+              // Taro.showToast({title: '位置已上传, 当前速度:'+res.speed, icon: 'none', duration: 2000});
               var polyline = self.state.polyline;
               self.setState({polyline: polyline.concat({longitude: res.longitude, latitude: res.latitude})});
             }
@@ -250,7 +250,7 @@ export default class Index extends Component {
       var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(La3 / 2), 2) + Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)));
       s = s * 6378.137;//地球半径
       s = Math.round(s * 10000) / 10000;
-      console.log("计算结果",s)
+      // console.log("计算结果",s)
       return s;
     }
     
@@ -335,7 +335,7 @@ export default class Index extends Component {
   // 分享行程
   onShareAppMessage(Object) {
     return {
-      title: '自定义转发标题',
+      title: '我正在出行，请求你的保护',
       path: '/pages/index/index?event=watching&ordernumber='+this.state.ordernumber
     }
   }

@@ -15,7 +15,7 @@ import pomeloUtil from '../../util/pomelo'
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: 'Project1'
+    navigationBarTitleText: '平安到家'
   }
 
   state = {

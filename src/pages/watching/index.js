@@ -429,7 +429,12 @@ export default class Index extends Component {
   }
 
   // 分享行程
-  onShareAppMessage(Object) {}
+  onShareAppMessage(Object) {
+    return {
+      title: '我正在出行，请求你的保护',
+      path: '/pages/index/index?event=watching&ordernumber='+this.state.ordernumber
+    }
+  }
 
   // 关闭当前页,返回到index页面,一般用于出错时
   reLaunchToIndex() {
