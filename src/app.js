@@ -9,9 +9,9 @@ class App extends Component {
     pages: [
       'pages/index/index',
       'pages/trip/index',
-      'pages/tripping/index',
-      'pages/watching/index',
-      'pages/watching/entry',
+      'pages/trip/tripping',
+      'pages/trip/watchingEntry',
+      'pages/trip/watching',
       'pages/user/follow',
     ],
     window: {

@@ -142,9 +142,9 @@ export default class Index extends Component {
   // 进入房间
   entry() {
     if (this.state.isCreator) {
-      Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+this.state.ordernumber});
+      Taro.reLaunch({url: '/pages/trip/tripping?ordernumber='+this.state.ordernumber});
     } else {
-      Taro.navigateTo({url: '/pages/watching/index?ordernumber='+this.state.ordernumber});
+      Taro.navigateTo({url: '/pages/trip/watching?ordernumber='+this.state.ordernumber});
     }
     // 清空ordernumber,如果navigator返回的话在这里不做停留
     this.$router.params['ordernumber'] = null;

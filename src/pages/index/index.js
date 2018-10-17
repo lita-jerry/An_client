@@ -23,7 +23,7 @@ export default class Index extends Component {
     }
 
     if (this.$router.params['event'] === 'watching') {
-      Taro.navigateTo({url: '/pages/watching/entry?ordernumber='+this.$router.params['ordernumber']});
+      Taro.navigateTo({url: '/pages/trip/watching?ordernumber='+this.$router.params['ordernumber']});
       return;
     }
 

@@ -28,30 +28,36 @@ export default class Index extends Component {
   }
 
   componentWillMount () {
-    this.addPomeloHandler();
+    console.log('componentWillMount')
   }
 
-  componentDidMount () { }
+  componentDidMount () {
+    console.log('componentDidMount')
+  }
 
   componentWillUnmount () {
+    console.log('componentWillUnmount')
+
     clearInterval(this.state.eventIntervalId);
-    
-    this.removePomeloHandler();
     pomelo.disconnect();
+    this.removePomeloHandler();
   }
 
   componentDidShow () {
+    console.log('componentDidShow')
+
+    this.doConnect();
+
     var self = this;
     // 循环事件
     var eventIntervalId = setInterval(()=>{
       if (!self.state.isConnect) {
         self.doConnect();
-        console.log('重新登录了');
       }
     }, 3000);
 
     this.setState({eventIntervalId: eventIntervalId}, ()=> {
-      self.doConnect();
+      self.addPomeloHandler();
 
       self.mapCtx = wx.createMapContext('myMap');
       setTimeout(() => {
@@ -61,8 +67,11 @@ export default class Index extends Component {
   }
 
   componentDidHide () {
+    console.log('componentDidHide')
+
     clearInterval(this.state.eventIntervalId);
     pomelo.disconnect();
+    this.removePomeloHandler();
   }
 
   /*    自定义函数    */
@@ -137,7 +146,12 @@ export default class Index extends Component {
 
   // 跳转到tripping
   toTripping(ordernumber) {
-    Taro.reLaunch({url: '/pages/tripping/index?ordernumber='+ordernumber});
+    Taro.reLaunch({url: '/pages/trip/tripping?ordernumber='+ordernumber});
+  }
+
+  // 跳转到follow
+  toFollow() {
+    Taro.navigateTo({url: '/pages/user/follow'});
   }
 
   // 获取用户信息
@@ -211,7 +225,7 @@ export default class Index extends Component {
       // console.log('on pomelo disconnect:', err);
       console.error('on pomelo disconnect:', err);
       self.setState({isConnect: false, isLogin: false});
-      Taro.showLoading({ title: '尝试重新连接', mask: true });
+      Taro.showLoading({ title: '重新连接', mask: true });
     });
   }
 
@@ -240,16 +254,16 @@ export default class Index extends Component {
 
                 <CoverView class='map-tool-box-bg'>
 
-                  <CoverView className='map-tool-left-box'>
+                  <CoverView className='map-tool-left-box' onClick={this.toFollow}>
                     <CoverImage src={follow_icon} class='map-tool-box-image' />
-                    <CoverView class='map-tool-box-text'>我的关注</CoverView>
+                    <CoverView class='map-tool-box-text'>关注</CoverView>
                   </CoverView>
 
                   <CoverView style="width: 66PX;"> </CoverView>
 
                   <CoverView className='map-tool-right-box'>
                     <CoverImage src={my_icon} class='map-tool-box-image' />
-                    <CoverView class='map-tool-box-text'>设置中心</CoverView>
+                    <CoverView class='map-tool-box-text'>设置</CoverView>
                   </CoverView>
                   
                 </CoverView>

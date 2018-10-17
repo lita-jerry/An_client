@@ -11,7 +11,7 @@ import pomeloUtil from '../../util/pomelo'
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: ''
+    navigationBarTitleText: '平安到家'
   }
 
   state = {
@@ -36,7 +36,7 @@ export default class Index extends Component {
       console.log('follow page: on pomelo disconnect:', err);
       self.setState({isConnect: false});
 
-      Taro.showLoading({ title: '尝试重新连接', mask: true });
+      Taro.showLoading({ title: '重新连接', mask: true });
     });
   }
 
@@ -65,10 +65,6 @@ export default class Index extends Component {
     this.setState({eventIntervalId: eventIntervalId}, ()=> {
       self.doConnect();
     });
-
-    // setTimeout(() => {
-    //   self.setDataFunc();
-    // }, 0);
   }
 
   componentDidHide () {
