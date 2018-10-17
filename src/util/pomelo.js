@@ -379,6 +379,50 @@ var getFollowState = function (pomelo, loginToken, followid, callback) {
   });
 }
 
+/**
+ * 获取所有关注的人
+ * 
+ * @param {pomelo} pomelo pomelo实例
+ * @param {String} loginToken 登录Token
+ * @param {Function} callback err, [userInfo]
+ */
+var getFollowing = function (pomelo, loginToken, callback) {
+  if (!pomelo) { callback('pomelo is null'); return; }
+
+  pomelo.request("user.userHandler.getFollowing", {token: loginToken}, function(result) {
+    console.log("user.userHandler.getFollowing", {token: loginToken}, result);
+    if (result.code !== 200) {
+      callback('服务器错误');
+    } else if (!!result.error) {
+      callback(result.msg);
+    } else {
+      callback(null, result.data);
+    }
+  });
+}
+
+/**
+ * 获取所有关注我的人
+ * 
+ * @param {pomelo} pomelo pomelo实例
+ * @param {String} loginToken 登录Token
+ * @param {Function} callback err, [userInfo]
+ */
+var getFollower = function (pomelo, loginToken, callback) {
+  if (!pomelo) { callback('pomelo is null'); return; }
+
+  pomelo.request("user.userHandler.getFollower", {token: loginToken}, function(result) {
+    console.log("user.userHandler.getFollower", {token: loginToken}, result);
+    if (result.code !== 200) {
+      callback('服务器错误');
+    } else if (!!result.error) {
+      callback(result.msg);
+    } else {
+      callback(null, result.data);
+    }
+  });
+}
+
 exports.init                  = init;
 exports.loginByWeapp          = loginByWeapp;
 exports.checkLoginToken       = checkLoginToken;
@@ -395,3 +439,5 @@ exports.follow                = follow;
 exports.unfollow              = unfollow;
 exports.getPolyline           = getPolyline;
 exports.getFollowState        = getFollowState;
+exports.getFollowing          = getFollowing;
+exports.getFollower           = getFollower;

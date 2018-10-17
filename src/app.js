@@ -11,7 +11,8 @@ class App extends Component {
       'pages/trip/index',
       'pages/tripping/index',
       'pages/watching/index',
-      'pages/watching/entry'
+      'pages/watching/entry',
+      'pages/user/follow',
     ],
     window: {
       backgroundTextStyle: 'light',
