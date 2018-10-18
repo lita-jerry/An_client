@@ -135,6 +135,29 @@ var queryUnfinished = function (pomelo, loginToken, callback) {
 }
 
 /**
+ * 查询已完成的行程列表
+ * 
+ * @param {pomelo} pomelo pomelo实例
+ * @param {String} loginToken 登录token
+ * @param {Function} callback err, [{ordernumber, startTime, endTime}]
+ */
+var queryFinishedList = function (pomelo, loginToken, callback) {
+
+  if (!pomelo) { callback('pomelo is null'); return; }
+
+  pomelo.request("trip.tripHandler.queryFinishedList", {token: loginToken}, function(result) {
+    console.log("trip.tripHandler.queryFinishedList", {token: loginToken}, result);
+    if (result.code !== 200) {
+      callback('服务器错误');
+    } else if (!!result.error) {
+      callback(result.msg);
+    } else {
+      callback(null, result.data);
+    }
+  });
+}
+
+/**
  * 进入行程房间(房主模式)
  * 
  * @param {pomelo} pomelo pomelo实例
@@ -429,6 +452,7 @@ exports.checkLoginToken       = checkLoginToken;
 exports.create                = create;
 exports.end                   = end;
 exports.queryUnfinished       = queryUnfinished;
+exports.queryFinishedList     = queryFinishedList;
 exports.entryTrippingRoom     = entryTrippingRoom;
 exports.entryWatchingRoom     = entryWatchingRoom;
 exports.uploadLocation        = uploadLocation;

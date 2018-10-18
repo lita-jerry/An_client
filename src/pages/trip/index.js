@@ -40,7 +40,7 @@ export default class Index extends Component {
 
     clearInterval(this.state.eventIntervalId);
     pomelo.disconnect();
-    this.removePomeloHandler();
+    pomelo.removeAllListeners();
   }
 
   componentDidShow () {
@@ -71,7 +71,7 @@ export default class Index extends Component {
 
     clearInterval(this.state.eventIntervalId);
     pomelo.disconnect();
-    this.removePomeloHandler();
+    pomelo.removeAllListeners();
   }
 
   /*    自定义函数    */
@@ -154,6 +154,11 @@ export default class Index extends Component {
     Taro.navigateTo({url: '/pages/user/follow'});
   }
 
+  // 跳转到my
+  toMy() {
+    Taro.navigateTo({url: '/pages/user/my'});
+  }
+
   // 获取用户信息
   onGotUserInfo (e) {
 
@@ -229,11 +234,6 @@ export default class Index extends Component {
     });
   }
 
-  // 移除pomelo监听响应
-  removePomeloHandler() {
-    pomelo.removeAllListeners();
-  }
-
   render () {
     return (
       <View className='index'>
@@ -261,7 +261,7 @@ export default class Index extends Component {
 
                   <CoverView style="width: 66PX;"> </CoverView>
 
-                  <CoverView className='map-tool-right-box'>
+                  <CoverView className='map-tool-right-box' onClick={this.toMy}>
                     <CoverImage src={my_icon} class='map-tool-box-image' />
                     <CoverView class='map-tool-box-text'>设置</CoverView>
                   </CoverView>

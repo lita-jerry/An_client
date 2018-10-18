@@ -11,7 +11,7 @@ import pomeloUtil from '../../util/pomelo'
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: '平安到家'
+    navigationBarTitleText: '安全到家'
   }
 
   state = {
@@ -23,29 +23,14 @@ export default class Index extends Component {
     followingList: [], // 关注我的人
   }
 
-  tabChangedHandle (value) {
-    var self = this;
-    this.setState({currentTab: value}, ()=>{
-      self.reloadData();
-    });
-  }
-
-  componentWillMount () {
-    var self = this;
-    pomelo.on('disconnect', function(err){
-      console.log('follow page: on pomelo disconnect:', err);
-      self.setState({isConnect: false});
-
-      Taro.showLoading({ title: '重新连接', mask: true });
-    });
-  }
+  componentWillMount () { }
 
   componentDidMount () { }
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
-    pomelo.removeAllListeners();
     pomelo.disconnect();
+    pomelo.removeAllListeners();
   }
 
   componentDidShow () {
@@ -54,6 +39,14 @@ export default class Index extends Component {
     if (!Taro.getStorageSync('LOGIN_TOKEN')) {
       self.reLaunchToIndex();
     }
+
+    // 断连handler
+    pomelo.on('disconnect', function(err){
+      console.log('follow page: on pomelo disconnect:', err);
+      self.setState({isConnect: false});
+
+      Taro.showLoading({ title: '重新连接', mask: true });
+    });
 
     // 循环事件
     var eventIntervalId = setInterval(()=>{
@@ -69,11 +62,18 @@ export default class Index extends Component {
 
   componentDidHide () {
     clearInterval(this.state.eventIntervalId);
-    // this.setState({eventIntervalId: null});
     pomelo.disconnect();
+    pomelo.removeAllListeners();
   }
 
   /*    自定义函数    */
+
+  tabChangedHandle (value) {
+    var self = this;
+    this.setState({currentTab: value}, ()=>{
+      self.reloadData();
+    });
+  }
 
   // pomelo连接
   doConnect () {

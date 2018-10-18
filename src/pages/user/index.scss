@@ -6,6 +6,8 @@
   background-color: #f8f8f8;
 }
 
+// follow
+
 .follower-cell {
   display: flex;
   background-color: #ffffff;
@@ -29,4 +31,28 @@
 .follower-cell-btn {
   margin-right: 20px;
   padding-right: 20px;
+}
+
+// my
+
+.user-info-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #fff;
+  width: 100vw;
+  height: 50vw;
+}
+
+.log-out-bg {
+  position: fixed;
+  bottom: 0px;
+  background-color: #fff;
+  color: gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100px;
 }

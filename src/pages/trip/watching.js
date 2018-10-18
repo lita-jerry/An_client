@@ -270,10 +270,10 @@ export default class Index extends Component {
       if (!!err) { return }
 
       // 如果是该行程的创建者
-      if (!!tripInfo.isCreator) {
-        self.reLaunchToIndex();
-        return;
-      }
+      // if (!!tripInfo.isCreator) {
+      //   self.reLaunchToIndex();
+      //   return;
+      // }
 
       // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime
 
