@@ -2,4 +2,4 @@
 
 目标平台：微信小程序
 
-技术架构：Taro + Redux + Socket.io
+技术架构：Taro + Pomelo-weixin-client
