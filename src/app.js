@@ -30,7 +30,12 @@ class App extends Component {
 
   componentDidMount () {}
 
-  componentDidShow () {}
+  componentDidShow () {
+    // 设置屏幕常亮
+    Taro.setKeepScreenOn({
+      keepScreenOn: true
+    });
+  }
 
   componentDidHide () {}
 

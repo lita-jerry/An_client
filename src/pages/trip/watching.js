@@ -431,7 +431,7 @@ export default class Index extends Component {
   // 分享行程
   onShareAppMessage(Object) {
     return {
-      title: '我正在出行，请求你的保护',
+      title: '请求你的保护',
       path: '/pages/index/index?event=watching&ordernumber='+this.state.ordernumber
     }
   }
@@ -489,7 +489,7 @@ export default class Index extends Component {
                 ? <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.cancelFollow}>取消关注</AtButton>
                 : <AtButton type='primary' size='normal' style='width:50vw;' onClick={this.addFollow}>关注Ta</AtButton>
               }
-              <AtButton type='secondary' openType='share'>分享</AtButton>
+              <AtButton type='secondary' openType='share'>分享给朋友</AtButton>
             </div>
 
           </div>

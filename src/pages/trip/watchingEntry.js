@@ -4,7 +4,6 @@ import { AtCard, AtButton } from "taro-ui"
 import './index.scss'
 
 import async from 'async'
-import dayjs from 'dayjs'
 import pomelo from 'pomelo-weixin-client'
 
 import pomeloUtil from '../../util/pomelo'
