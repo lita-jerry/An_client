@@ -2,6 +2,8 @@ import Taro, { Component } from '@tarojs/taro'
 import { View, Text, Button } from '@tarojs/components'
 import { AtSegmentedControl, AtAvatar } from 'taro-ui'
 
+import { Get } from "../../util/NetworkUtil";
+
 import './index.scss'
 
 import pomelo from 'pomelo-weixin-client'

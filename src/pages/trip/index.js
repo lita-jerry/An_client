@@ -2,14 +2,13 @@ import Taro, { Component, getApp } from '@tarojs/taro'
 import { View, Text, Button } from '@tarojs/components'
 import './index.scss'
 
+import { Get } from "../../util/NetworkUtil";
+
 import follow_icon from './images/follow.png'
 import my_icon from './images/my.png'
 import trip_icon from './images/trip.png'
 
 import async from 'async'
-import pomelo from 'pomelo-weixin-client'
-
-import pomeloUtil from '../../util/pomelo'
 
 /* 行程首页 */
 export default class Index extends Component {
@@ -19,9 +18,7 @@ export default class Index extends Component {
   }
 
   state = {
-    isConnect: false,
     isLogin: false,
-    eventIntervalId: null,
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994"
@@ -37,98 +34,65 @@ export default class Index extends Component {
 
   componentWillUnmount () {
     console.log('componentWillUnmount')
-
-    clearInterval(this.state.eventIntervalId);
-    pomelo.disconnect();
-    pomelo.removeAllListeners();
   }
 
   componentDidShow () {
     console.log('componentDidShow')
 
-    this.doConnect();
-
+    // 检查本地是否有LoginToken
+    const hasLoginToken = Taro.getStorageSync('LOGIN_TOKEN');
+    if (!!hasLoginToken) {
+      Taro.showLoading({ mask: true })
+      this.doCheckLoginToken((err) => {
+        Taro.hideLoading()
+        if (!!err) {
+          Taro.showToast({title: err, icon: 'none', duration: 2000})
+        }
+      })
+    }
+    
+    this.mapCtx = wx.createMapContext('myMap');
     var self = this;
-    // 循环事件
-    var eventIntervalId = setInterval(()=>{
-      if (!self.state.isConnect) {
-        self.doConnect();
-      }
-    }, 3000);
-
-    this.setState({eventIntervalId: eventIntervalId}, ()=> {
-      self.addPomeloHandler();
-
-      self.mapCtx = wx.createMapContext('myMap');
-      setTimeout(() => {
-        self.showCurrentLocation();
-      }, 1000);
-    });
+    setTimeout(() => {
+      self.showCurrentLocation();
+    }, 1000);
   }
 
   componentDidHide () {
     console.log('componentDidHide')
-
-    clearInterval(this.state.eventIntervalId);
-    pomelo.disconnect();
-    pomelo.removeAllListeners();
   }
 
   /*    自定义函数    */
 
-  // pomelo连接
-  doConnect () {
-
-    if (!!this.state.isConnect) {
-      Taro.hideLoading();
-      this.doCheckLoginToken();
-      return;
-    };
-
-    var self = this;
-    pomeloUtil.init(pomelo, function(err) {
-      if (!!err) {
-        self.setState({isConnect: false, isLogin: false});
-      } else {
-        Taro.hideLoading();
-        self.setState({isConnect: true});
-        self.doCheckLoginToken();
-      }
-    });
-  }
-
   // 校验loginToken
-  doCheckLoginToken () {
+  doCheckLoginToken (callback) {
     if (!!this.state.isLogin) { return }
 
-    // 检查本地是否有LoginToken
-    const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
-    if (!loginToken) { return }
-
     var self = this;
-    pomeloUtil.checkLoginToken(pomelo, loginToken, function(err) {
-      if (!!err) {
-        console.log(err);
+    Get('/user/wxmp/check', null, true, (data) => {
+      console.log(data)
+      if (data.code != 200) {
         Taro.setStorageSync('LOGIN_TOKEN', null);
+        callback('Token已失效')
       } else {
         self.setState({isLogin: true}, ()=>{
-          self.doRecoveryTrip();
+          self.doRecoveryTrip(callback);
         });
       }
-    });
+    })
   }
 
   // 恢复行程
-  doRecoveryTrip () {
-    Taro.showLoading({ title: '查询可恢复行程', mask: true });
+  doRecoveryTrip (callback) {
+    Taro.showLoading({ title: '查询可恢复行程', mask: true })
 
     var self = this;
-    pomeloUtil.queryUnfinished(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, ordernumber) {
-      Taro.hideLoading();
-      if (!err && !!ordernumber) {
-        self.toTripping(ordernumber);
+    Get('/trip/wxmp/unfinished', null, true, (result)=> {
+      Taro.hideLoading()
+      if (result.code === 200 && result.ordernumber !== "") {
+        self.toTripping(result.ordernumber);
       }
-    });
+    })
   }
 
   // 创建行程
@@ -136,12 +100,12 @@ export default class Index extends Component {
     Taro.showLoading({ title: '创建行程', mask: true });
     
     var self = this;
-    pomeloUtil.create(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, ordernumber) {
-      Taro.hideLoading();
-      if (!err && !!ordernumber) {
-        self.toTripping(ordernumber);
+    Get('/trip/wxmp/create', null, true, (result)=> {
+      Taro.hideLoading()
+      if (result.code === 200 && result.ordernumber !== "") {
+        self.toTripping(result.ordernumber);
       }
-    });
+    })
   }
 
   // 跳转到tripping
@@ -191,9 +155,13 @@ export default class Index extends Component {
         });
       },
       function(_nickName, _avatarUrl, _code, _cb) {
-        pomeloUtil.loginByWeapp(pomelo, _code, _nickName, _avatarUrl, function(err, token) {
-          _cb(err, token);
-        });
+        Get('/user/wxmp/login', {nickname:_nickName, avatarurl:_avatarUrl, code:_code}, false, (result)=>{
+          if (result.code === 200) {
+            _cb(null, result.token)
+          } else {
+            _cb(result.msg, null)
+          }
+        })
       }],
       function(_err, _token) {
         Taro.hideLoading();
@@ -221,17 +189,6 @@ export default class Index extends Component {
   // 地图上显示当前位置
   showCurrentLocation() {
     this.mapCtx.moveToLocation();
-  }
-
-  // 添加pomelo监听响应
-  addPomeloHandler() {
-    var self = this;
-    pomelo.on('disconnect', function(err){
-      // console.log('on pomelo disconnect:', err);
-      console.error('on pomelo disconnect:', err);
-      self.setState({isConnect: false, isLogin: false});
-      Taro.showLoading({ title: '重新连接', mask: true });
-    });
   }
 
   render () {
