@@ -39,16 +39,18 @@ export default class Index extends Component {
   componentDidShow () {
     console.log('componentDidShow')
 
-    // 检查本地是否有LoginToken
-    const hasLoginToken = Taro.getStorageSync('LOGIN_TOKEN');
-    if (!!hasLoginToken) {
-      Taro.showLoading({ mask: true })
-      this.doCheckLoginToken((err) => {
-        Taro.hideLoading()
-        if (!!err) {
-          Taro.showToast({title: err, icon: 'none', duration: 2000})
-        }
-      })
+    if (!this.state.isLogin) {
+      // 检查本地是否有LoginToken
+      const hasLoginToken = Taro.getStorageSync('LOGIN_TOKEN');
+      if (!!hasLoginToken) {
+        Taro.showLoading({ mask: true })
+        this.doCheckLoginToken((err) => {
+          Taro.hideLoading()
+          if (!!err) {
+            Taro.showToast({title: err, icon: 'none', duration: 2000})
+          }
+        })
+      }
     }
     
     this.mapCtx = wx.createMapContext('myMap');
