@@ -52,11 +52,7 @@ export default class Index extends Component {
 
   componentDidMount () { }
 
-  componentWillUnmount () {
-    // clearInterval(this.state.eventIntervalId);
-    // this.removePomeloHandler();
-    // pomelo.disconnect();
-  }
+  componentWillUnmount () { }
 
   componentDidShow () {
     this.getTripInfo();
@@ -203,7 +199,9 @@ export default class Index extends Component {
           if (result.polyline.length > 0) {
             _getpolyline(newPolyline, pageno+1, pagesize, callback)
           } else {
-            callback(null, newPolyline)
+            self.setState({ polyline:newPolyline }, ()=> {
+              callback(null, newPolyline)
+            })
           }
         } else {
           callback('获取路线出错', null)
