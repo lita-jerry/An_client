@@ -29,6 +29,7 @@ export default class Index extends Component {
     mapScale : 14,
     longitude: "113.324520",
     latitude: "23.099994",
+    markers: [],
   }
 
   componentWillMount () { }
@@ -140,6 +141,7 @@ export default class Index extends Component {
   // 刷新当前状态,在地图上显示最后出现的位置
   refreshStatus() {
     console.log(this.state);
+    
   }
 
   // 进入房间
@@ -161,7 +163,8 @@ export default class Index extends Component {
         self.setState({
           isCreator: result.iscreator,
           longitude: result.lastlocation.longitude,
-          latitude: result.lastlocation.latitude
+          latitude: result.lastlocation.latitude,
+          markers: [{id: 1, latitude: result.lastlocation.latitude, longitude: result.lastlocation.longitude, name: '当前位置'}]
         }, ()=> {
           self.refreshStatus();
         })
@@ -184,7 +187,8 @@ export default class Index extends Component {
              style='display:flex; left:0; top:0; width:100vw; height:100vh; '
              longitude={this.state.longitude} latitude={this.state.latitude}
              scale={this.state.mapScale+''}
-             show-location = {false}>
+             show-location = {true}
+             markers = {this.state.markers}>
  
           <CoverView style='position:fixed; left:0; right:0; margin:auto; bottom:25PX; width:80vw; height:70PX;'>
           {

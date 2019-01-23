@@ -75,17 +75,6 @@ export default class Index extends Component {
     if (this.state.tripState === 2) { return }
     // 循环事件
     var eventIntervalId = setInterval(()=>{
-      // if (!self.state.isConnect) {
-      //   self.doConnect();
-      // } else {
-      //   if (self.state.tripState === 1 || self.state.tripState === 3) {
-      //     // 显示最新出现的位置
-      //     self.showLastLocation();
-      //   } else if (self.state.tripState === 0) {
-      //     // 表示仅建立了Socket连接
-      //     self.doConnect();
-      //   }
-      // }
       if (self.state.tripState === 1 || self.state.tripState === 3) {
         // 显示最新出现的位置
         self.showLastLocation();
@@ -165,7 +154,68 @@ export default class Index extends Component {
 
   // 显示最新出现的位置
   showLastLocation() {
+    var self = this
+    Get('/trip/wxmp/info', { ordernumber:this.state.ordernumber }, true, (result)=> {
+      if (result.code === 200) {
+        var mapScale = self.state.mapScale
+        if (self.state.longitude !== result.lastlocation.longitude || self.state.latitude !== result.lastlocation.latitude) {
+          mapScale = 16
+        }
+        self.setState({
+          createdTime: result.ctime,
+          lastUpdatedTime: result.lastlocation ? result.lastlocation.time : result.ctime,
+          tripState: result.state,
+          tripCreatorid: result.creatorid,
+          longitude: result.lastlocation.longitude,
+          latitude: result.lastlocation.latitude,
+          lastUpdatedTime: result.lastlocation.time,
+          mapScale: mapScale
+        }, ()=> {
+          if (self.state.tripState === 1 || self.state.tripState === 3) {
+            self.translateMarker()
+          } else {
+            self.showPolyline()
+          }
+        })
+      } else {
+        self.reLaunchToIndex()
+      }
+    })
+
     
+  }
+
+  translateMarker() {
+    var self = this
+    self.mapCtx.translateMarker({
+      markerId: 1,
+      autoRotate: false,
+      duration: 1000,
+      destination: {
+        latitude: this.state.latitude,
+        longitude: this.state.longitude,
+      },
+      animationEnd() {
+        var polyline = self.state.polyline;
+        var startTime = self.state.lastUpdatedTime;
+        var lengthOfTime = dayjs().diff(dayjs(startTime), 'second');
+        var distance = self.computePolylineDistance([
+          {longitude: self.state.longitude, latitude: self.state.latitude},
+          {longitude: self.state.longitude, latitude: self.state.latitude}
+        ]);
+        var speed = distance * 1000 / lengthOfTime;
+
+        self.setState({
+          longitude: self.state.longitude, 
+          latitude: self.state.latitude,
+          lastUpdatedTime: dayjs().format(),
+          polyline: polyline.concat({longitude: self.state.longitude, latitude: self.state.latitude}),
+          speed: speed
+        });
+        self.refreshStatus()
+        // self.mapCtx.moveToLocation()
+      }
+    })
   }
 
   // 显示路线图
@@ -287,7 +337,8 @@ export default class Index extends Component {
           tripCreatorid: result.creatorid,
           longitude: result.lastlocation.longitude,
           latitude: result.lastlocation.latitude,
-          lastUpdatedTime: result.lastlocation.time
+          lastUpdatedTime: result.lastlocation.time,
+          markers: [{id: 1, latitude: result.lastlocation.latitude, longitude: result.lastlocation.longitude, name: '当前位置'}]
         }, ()=> {
           // if (self.state.tripState === 1 || self.state.tripState === 3) {
           //   self.entryWatchingRoom();
