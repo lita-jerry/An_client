@@ -3,7 +3,7 @@ import { View, Text } from '@tarojs/components'
 import { AtCard, AtButton } from "taro-ui"
 import './index.scss'
 
-import { Get } from "../../util/NetworkUtil";
+import { Get } from "../../util/NetworkUtil"
 
 import sos_icon from './images/sos.png'
 import security_icon from './images/security.png'

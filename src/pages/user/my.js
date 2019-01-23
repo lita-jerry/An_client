@@ -20,34 +20,13 @@ export default class Index extends Component {
     nickName: '',
     avatarUrl: '',
     gender: 0,
-    // isConnect: false,
-    // eventIntervalId: null,
   }
 
-  tabChangedHandle (value) {
-    // var self = this;
-    // this.setState({currentTab: value}, ()=>{
-    //   self.reloadData();
-    // });
-  }
-
-  componentWillMount () {
-    // var self = this;
-    // pomelo.on('disconnect', function(err){
-    //   console.log('follow page: on pomelo disconnect:', err);
-    //   self.setState({isConnect: false});
-
-    //   Taro.showLoading({ title: '重新连接', mask: true });
-    // });
-  }
+  componentWillMount () { }
 
   componentDidMount () { }
 
-  componentWillUnmount () {
-    // clearInterval(this.state.eventIntervalId);
-    // pomelo.removeAllListeners();
-    // pomelo.disconnect();
-  }
+  componentWillUnmount () { }
 
   componentDidShow () {
     var self = this;
@@ -56,55 +35,12 @@ export default class Index extends Component {
       self.reLaunchToIndex();
     }
 
-    // 循环事件
-    // var eventIntervalId = setInterval(()=>{
-    //   if (!self.state.isConnect) {
-    //     self.doConnect();
-    //   }
-    // }, 3000);
-
-    // this.setState({eventIntervalId: eventIntervalId}, ()=> {
-    //   self.doConnect();
-    // });
-
     this.getInfo();
   }
 
-  componentDidHide () {
-    // clearInterval(this.state.eventIntervalId);
-    // this.setState({eventIntervalId: null});
-    // pomelo.disconnect();
-  }
+  componentDidHide () { }
 
   /*    自定义函数    */
-
-  // pomelo连接
-  doConnect () {
-
-    if (!!this.state.isConnect) {
-      Taro.hideLoading();
-      return;
-    };
-
-    var self = this;
-    pomeloUtil.init(pomelo, function(err) {
-      if (!!err) {
-        self.setState({isConnect: false});
-      } else {
-        Taro.hideLoading();
-        self.setState({isConnect: true}, ()=> {
-          // self.reloadData();
-        });
-      }
-    });
-  }
-
-  // reloadData() {
-  //   if (!this.state.isConnect) { return }
-
-  //   var self = this;
-
-  // }
 
   getInfo() {
     var self = this;
