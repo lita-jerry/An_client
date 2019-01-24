@@ -1,7 +1,7 @@
 
 import Taro from '@tarojs/taro'
 
-var host = 'http://localhost:8080/v1'
+var host = 'https://an.jerrysir.com/api/v1'
 
 var Get = function (path, param, isNeedLoginToken, callback) {
     const loginToken = Taro.getStorageSync('LOGIN_TOKEN');
@@ -10,7 +10,11 @@ var Get = function (path, param, isNeedLoginToken, callback) {
         data: param,
         header: isNeedLoginToken ? { 'auth-token': loginToken } : {}
       })
-        .then(res => callback(res.data))
+        .then(res => {
+            if (res.data.code === 200) {
+                callback(res.data)
+            }
+        })
 }
 
 exports.Get = Get;

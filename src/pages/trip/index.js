@@ -172,6 +172,8 @@ export default class Index extends Component {
           self.setState({isLogin: true}, ()=>{
             self.doRecoveryTrip();
           });
+        } else {
+          console.log(_err)
         }
     });
   }
