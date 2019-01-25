@@ -51,23 +51,12 @@ export default class Index extends Component {
       this.reLaunchToIndex();
     }
     this.setState({ordernumber: this.$router.params['ordernumber']});
-
-    // var self = this;
-    // pomelo.on('disconnect', function(err){
-    //   console.log('on pomelo disconnect:', err);
-    //   self.setState({isConnect: false, isEntry: false});
-
-    //   if (self.state.tripState === 2) { return }
-    //   Taro.showLoading({ title: '重新连接', mask: true });
-    // });
   }
 
   componentDidMount () { }
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
-    // this.removePomeloHandler();
-    // pomelo.disconnect();
   }
 
   componentDidShow () {
@@ -93,30 +82,9 @@ export default class Index extends Component {
   componentDidHide () {
     clearInterval(this.state.eventIntervalId);
     // this.setState({eventIntervalId: null});
-    // pomelo.disconnect();
   }
 
   /*    自定义函数    */
-
-  // pomelo连接
-  // doConnect () {
-
-  //   if (!!this.state.isConnect) {
-  //     Taro.hideLoading();
-  //     return;
-  //   };
-
-  //   var self = this;
-  //   pomeloUtil.init(pomelo, function(err) {
-  //     if (!!err) {
-  //       self.setState({isConnect: false, isEntry: false, tripState: 0});
-  //     } else {
-  //       Taro.hideLoading();
-  //       self.setState({isConnect: true});
-  //       self.getTripInfo();
-  //     }
-  //   });
-  // }
 
   // 刷新当前状态,重新计算时间、距离、速度
   refreshStatus() {
@@ -238,16 +206,6 @@ export default class Index extends Component {
 
   // 获取路线
   getPolyline(callback) {
-    // var self = this;
-    // pomeloUtil.getPolyline(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err, polyline) {
-    //   if (!!err) { callback('获取路线失败'); return; }
-    //   self.setState({
-    //     polyline: polyline
-    //   }, ()=> {
-    //     callback(null);
-    //   });
-    // });
-
     var self = this;
     _getpolyline([], 0, 10, callback)
 
@@ -297,37 +255,7 @@ export default class Index extends Component {
   
   // 获取行程信息
   getTripInfo() {
-
-    var self = this;
-
-    // pomeloUtil.getInfo(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err, tripInfo) {
-    //   if (!!err) { return }
-
-      // 如果是该行程的创建者
-      // if (!!tripInfo.isCreator) {
-      //   self.reLaunchToIndex();
-      //   return;
-      // }
-
-      // uid, nickName, avatar, tripState, createdTime, lastUpdatedTime
-
-    //   self.setState({
-    //     tripState: tripInfo.tripState,
-    //     tripCreatorid: tripInfo.creatorid,
-    //     createdTime: tripInfo.createdTime,
-    //     longitude: tripInfo.lastPlace.longitude,
-    //     latitude: tripInfo.lastPlace.latitude,
-    //     lastUpdatedTime: tripInfo.lastUpdatedTime,
-    //     markers: [{id: 1, latitude: tripInfo.lastPlace.latitude, longitude: tripInfo.lastPlace.longitude, name: '当前位置'}]
-    //   }, ()=> {
-    //     if (self.state.tripState === 1 || self.state.tripState === 3) {
-    //       self.entryWatchingRoom();
-    //     }
-    //     self.showPolyline();
-    //     self.getFollowState();
-    //   });
-    // });
-
+    var self = this
     Get('/trip/wxmp/info', { ordernumber:this.state.ordernumber }, true, (result)=> {
       if (result.code === 200) {
         self.setState({
@@ -352,113 +280,10 @@ export default class Index extends Component {
     })
   }
 
-  // 进入观察者房间
-  // entryWatchingRoom() {
-    
-  //   if (this.state.isEntry) { return }
-
-  //   var self = this;
-    
-  //   pomeloUtil.entryWatchingRoom(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.ordernumber, function(err) {
-  //     if (!!err) { return }
-  //     self.setState({isEntry: true});
-  //     self.addPomeloHandler();
-  //     self.getPolyline(function(_err) {
-  //       self.refreshStatus();
-  //     });
-  //   });
-  // }
-
-  // 添加pomelo监听响应
-  // addPomeloHandler() {
-
-  //   var self = this;
-
-  //   // 房主进入房间
-  //   pomelo.on('onTripCreatorAdd', function(data) {
-  //     Taro.showToast({title: '房主恢复连接', icon: 'none', duration: 2000});
-  //     self.setState({tripState: 1});
-  //   });
-
-  //   // 房主离开房间
-  //   pomelo.on('onTripCreatorLeave', function(data) {
-  //     Taro.showToast({title: '房主断开连接', icon: 'none', duration: 2000});
-  //     self.setState({tripState: 3});
-  //   });
-
-  //   // 行程结束
-  //   pomelo.on('onTripEnd', function(data) {
-  //     Taro.showToast({title: '行程结束', icon: 'none', duration: 2000});
-  //     self.setState({tripState: 2, lastUpdatedTime: dayjs().format()}, ()=>{
-  //       // 显示路线图
-  //       self.showPolyline();
-  //       clearInterval(self.state.eventIntervalId);
-  //     });
-  //   });
-
-  //   // 位置变化
-  //   pomelo.on('onLocationChanged', function(data) {
-  //     console.log('onLocationChanged:', data)
-      
-  //     self.mapCtx.translateMarker({
-  //       markerId: 1,
-  //       autoRotate: false,
-  //       duration: 1000,
-  //       destination: {
-  //         latitude: data.latitude,
-  //         longitude: data.longitude,
-  //       },
-  //       animationEnd() {
-  //         var polyline = self.state.polyline;
-  //         var startTime = self.state.lastUpdatedTime;
-  //         var lengthOfTime = dayjs().diff(dayjs(startTime), 'second');
-  //         var distance = self.computePolylineDistance([
-  //           {longitude: self.state.longitude, latitude: self.state.latitude},
-  //           {longitude: data.longitude, latitude: data.latitude}
-  //         ]);
-  //         var speed = distance * 1000 / lengthOfTime;
-
-  //         self.setState({
-  //           longitude: data.longitude, 
-  //           latitude: data.latitude,
-  //           lastUpdatedTime: dayjs().format(),
-  //           polyline: polyline.concat({longitude: data.longitude, latitude: data.latitude}),
-  //           speed: speed
-  //         });
-  //         self.refreshStatus();
-  //       }
-  //     })
-  //   });
-
-  //   // 求助
-  //   pomelo.on('onSOS', function(data) {
-  //     console.log('onSOS');
-  //     var intervalId = setInterval(()=>{
-  //       Taro.showToast({title: '房主发出求救,请及时联系确保安全', icon: 'none', duration: 2000});
-  //     }, 2500);
-
-  //     setTimeout(() => {
-  //       clearInterval(intervalId);
-  //     }, 10000);
-  //   });
-
-  //   // 暂时未用 onTripWatcherAdd onTripWatcherLeave
-  // }
-
-  // 移除pomelo监听响应
-  // removePomeloHandler() {
-  //   pomelo.removeAllListeners();
-  // }
-
   // 添加关注
   addFollow() {
     if (!this.state.tripCreatorid || this.state.followState === 1) { return }
-
-    var self = this;
-
-    // pomeloUtil.follow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
-    //   self.getFollowState();
-    // });
+    var self = this
     Get('/user/wxmp/follow/add', {uid: this.state.tripCreatorid}, true, (result)=> {
       self.getFollowState();
     })
@@ -466,12 +291,7 @@ export default class Index extends Component {
   // 取消关注
   cancelFollow() {
     if (!this.state.tripCreatorid || this.state.followState !== 1) { return }
-
-    var self = this;
-
-    // pomeloUtil.unfollow(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err) {
-    //   self.getFollowState();
-    // });
+    var self = this
     Get('/user/wxmp/follow/remove', {uid: this.state.tripCreatorid}, true, (result)=> {
       self.getFollowState();
     })
@@ -479,16 +299,7 @@ export default class Index extends Component {
   // 查询关注状态
   getFollowState() {
     if (!this.state.tripCreatorid) { return }
-
-    var self = this;
-
-    // pomeloUtil.getFollowState(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), this.state.tripCreatorid, function(err, isFollow) {
-    //   if (!!err) {
-    //     console.error(err);
-    //     return;
-    //   }
-    //   self.setState({followState: isFollow ? 1 : 2});
-    // });
+    var self = this
     Get('/user/wxmp/follow/state', {uid: this.state.tripCreatorid}, true, (result)=> {
       if (result.code === 200) {
         self.setState({followState: result.isfollow ? 1 : 2});

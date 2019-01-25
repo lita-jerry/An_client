@@ -10,11 +10,7 @@ var Get = function (path, param, isNeedLoginToken, callback) {
         data: param,
         header: isNeedLoginToken ? { 'auth-token': loginToken } : {}
       })
-        .then(res => {
-            if (res.data.code === 200) {
-                callback(res.data)
-            }
-        })
+        .then(res => { callback(res.data) })
 }
 
 exports.Get = Get;

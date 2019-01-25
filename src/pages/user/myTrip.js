@@ -6,9 +6,6 @@ import { Get } from "../../util/NetworkUtil"
 
 import './index.scss'
 
-import pomelo from 'pomelo-weixin-client'
-import pomeloUtil from '../../util/pomelo'
-
 import dayjs from 'dayjs'
 
 import success_icon from './images/success.png'
@@ -33,8 +30,6 @@ export default class Index extends Component {
 
   componentWillUnmount () {
     clearInterval(this.state.eventIntervalId);
-    // pomelo.disconnect();
-    // pomelo.removeAllListeners();
   }
 
   componentDidShow () {
@@ -45,63 +40,14 @@ export default class Index extends Component {
     }
 
     this.reloadData()
-    // pomelo.on('disconnect', function(err){
-    //   console.log('follow page: on pomelo disconnect:', err);
-    //   self.setState({isConnect: false});
-
-    //   Taro.showLoading({ title: '重新连接', mask: true });
-    // });
-
-    // 循环事件
-    // var eventIntervalId = setInterval(()=>{
-    //   if (!self.state.isConnect) {
-    //     self.doConnect();
-    //   }
-    // }, 3000);
-
-    // this.setState({eventIntervalId: eventIntervalId}, ()=> {
-    //   self.doConnect();
-    // });
   }
 
-  componentDidHide () {
-    // clearInterval(this.state.eventIntervalId);
-    // pomelo.disconnect();
-    // pomelo.removeAllListeners();
-  }
+  componentDidHide () { }
 
   /*    自定义函数    */
 
-  // pomelo连接
-  // doConnect () {
-
-  //   if (!!this.state.isConnect) {
-  //     Taro.hideLoading();
-  //     return;
-  //   };
-
-  //   var self = this;
-  //   pomeloUtil.init(pomelo, function(err) {
-  //     if (!!err) {
-  //       self.setState({isConnect: false});
-  //     } else {
-  //       Taro.hideLoading();
-  //       self.setState({isConnect: true}, ()=> {
-  //         self.reloadData();
-  //       });
-  //     }
-  //   });
-  // }
-
   reloadData() {
-    // if (!this.state.isConnect) { return }
-
-    var self = this;
-
-    // pomeloUtil.queryFinishedList(pomelo, Taro.getStorageSync('LOGIN_TOKEN'), function(err, tripList) {
-    //   if (!!err) { return }
-    //   self.setState({tripList: tripList});
-    // });
+    var self = this
     Get('/trip/wxmp/finished', null, true, (result)=> {
       if (result.code === 200) {
         self.setState({tripList: result.data})

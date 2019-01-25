@@ -29,9 +29,7 @@ class App extends Component {
     }
   }
 
-  globalData = {
-    pomelo: null
-  }
+  globalData = { }
 
   componentDidMount () {}
 

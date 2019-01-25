@@ -6,9 +6,6 @@ import './index.scss'
 
 import polyline_icon from './images/polyline.png'
 
-// import pomelo from 'pomelo-weixin-client'
-// import pomeloUtil from '../../util/pomelo'
-
 /* 我的 用户中心 */
 export default class Index extends Component {
 

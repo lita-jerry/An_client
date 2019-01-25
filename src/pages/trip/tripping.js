@@ -46,8 +46,6 @@ export default class Index extends Component {
       this.reLaunchToIndex();
     }
     this.setState({ordernumber: this.$router.params['ordernumber']});
-
-    // this.addPomeloHandler();
   }
 
   componentDidMount () { }
