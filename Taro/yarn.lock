@@ -2800,11 +2800,6 @@ events@^1.0.0:
   resolved "https://r.cnpmjs.org/events/download/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
   integrity sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=
 
-events@^2.0.0:
-  version "2.1.0"
-  resolved "https://r.cnpmjs.org/events/download/events-2.1.0.tgz#2a9a1e18e6106e0e812aa9ebd4a819b3c29c0ba5"
-  integrity sha1-KpoeGOYQbg6BKqnr1KgZs8KcC6U=
-
 eventsource@^1.0.7:
   version "1.0.7"
   resolved "https://r.cnpmjs.org/eventsource/download/eventsource-1.0.7.tgz#8fbc72c93fcd34088090bc0a4e64f4b5cee6d8d0"
@@ -4386,9 +4381,9 @@ lodash.tail@^4.1.1:
   integrity sha1-0jM6NtnncXyK0vfKyv7HwytERmQ=
 
 lodash@^4.0.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.0, lodash@^4.3.0, lodash@~4.17.10:
-  version "4.17.11"
-  resolved "https://r.cnpmjs.org/lodash/download/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
-  integrity sha1-s56mIp72B+zYniyN8SU2iRysm40=
+  version "4.17.19"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
+  integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
 
 log-symbols@^2.2.0:
   version "2.2.0"
@@ -5415,13 +5410,6 @@ pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://r.cnpmjs.org/pluralize/download/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
   integrity sha1-KYuJ34uTsCIdv0Ia0rGx6iP8Z3c=
-
-pomelo-weixin-client@^1.7.0:
-  version "1.9.0"
-  resolved "https://r.cnpmjs.org/pomelo-weixin-client/download/pomelo-weixin-client-1.9.0.tgz#3a4a5b2a77ceb88b9a3434e482dd61811ab72352"
-  integrity sha1-OkpbKnfOuIuaNDTkgt1hgRq3I1I=
-  dependencies:
-    events "^2.0.0"
 
 portfinder@^1.0.9:
   version "1.0.20"
