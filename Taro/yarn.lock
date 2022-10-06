@@ -2160,9 +2160,9 @@ css-tree@1.0.0-alpha25:
     source-map "^0.5.3"
 
 css-what@2.1:
-  version "2.1.2"
-  resolved "https://r.cnpmjs.org/css-what/download/css-what-2.1.2.tgz#c0876d9d0480927d7d4920dcd72af3595649554d"
-  integrity sha1-wIdtnQSAkn19SSDc1yrzWVZJVU0=
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/css-what/-/css-what-2.1.3.tgz#a6d7604573365fe74686c3f311c56513d88285f2"
+  integrity sha512-a+EPoD+uZiNfh+5fxw2nO9QwFa6nJe2Or35fGY6Ipw1R3R4AGz1d1TEZrCegvw2YTmZ0jXirGYlzxxpYSHwpEg==
 
 css@^2.0.0:
   version "2.2.4"
@@ -2799,11 +2799,6 @@ events@^1.0.0:
   version "1.1.1"
   resolved "https://r.cnpmjs.org/events/download/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
   integrity sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=
-
-events@^2.0.0:
-  version "2.1.0"
-  resolved "https://r.cnpmjs.org/events/download/events-2.1.0.tgz#2a9a1e18e6106e0e812aa9ebd4a819b3c29c0ba5"
-  integrity sha1-KpoeGOYQbg6BKqnr1KgZs8KcC6U=
 
 eventsource@^1.0.7:
   version "1.0.7"
@@ -5415,13 +5410,6 @@ pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://r.cnpmjs.org/pluralize/download/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
   integrity sha1-KYuJ34uTsCIdv0Ia0rGx6iP8Z3c=
-
-pomelo-weixin-client@^1.7.0:
-  version "1.9.0"
-  resolved "https://r.cnpmjs.org/pomelo-weixin-client/download/pomelo-weixin-client-1.9.0.tgz#3a4a5b2a77ceb88b9a3434e482dd61811ab72352"
-  integrity sha1-OkpbKnfOuIuaNDTkgt1hgRq3I1I=
-  dependencies:
-    events "^2.0.0"
 
 portfinder@^1.0.9:
   version "1.0.20"
