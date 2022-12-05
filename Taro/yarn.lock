@@ -2278,9 +2278,9 @@ decamelize@^2.0.0:
     xregexp "4.0.0"
 
 decode-uri-component@^0.2.0:
-  version "0.2.0"
-  resolved "https://r.cnpmjs.org/decode-uri-component/download/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
-  integrity sha1-6zkTMzRYd1y4TNGh+uBiEGu4dUU=
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 deep-equal@^1.0.1:
   version "1.0.1"
@@ -2799,11 +2799,6 @@ events@^1.0.0:
   version "1.1.1"
   resolved "https://r.cnpmjs.org/events/download/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
   integrity sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=
-
-events@^2.0.0:
-  version "2.1.0"
-  resolved "https://r.cnpmjs.org/events/download/events-2.1.0.tgz#2a9a1e18e6106e0e812aa9ebd4a819b3c29c0ba5"
-  integrity sha1-KpoeGOYQbg6BKqnr1KgZs8KcC6U=
 
 eventsource@^1.0.7:
   version "1.0.7"
@@ -5415,13 +5410,6 @@ pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://r.cnpmjs.org/pluralize/download/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
   integrity sha1-KYuJ34uTsCIdv0Ia0rGx6iP8Z3c=
-
-pomelo-weixin-client@^1.7.0:
-  version "1.9.0"
-  resolved "https://r.cnpmjs.org/pomelo-weixin-client/download/pomelo-weixin-client-1.9.0.tgz#3a4a5b2a77ceb88b9a3434e482dd61811ab72352"
-  integrity sha1-OkpbKnfOuIuaNDTkgt1hgRq3I1I=
-  dependencies:
-    events "^2.0.0"
 
 portfinder@^1.0.9:
   version "1.0.20"
